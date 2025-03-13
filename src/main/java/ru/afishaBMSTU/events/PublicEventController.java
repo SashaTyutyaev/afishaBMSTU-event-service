@@ -2,9 +2,15 @@ package ru.afishaBMSTU.events;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import ru.afishaBMSTU.events.dto.EventFilterDto;
 import ru.afishaBMSTU.users.comments.model.CommentDto;
 import ru.afishaBMSTU.users.events.model.dto.EventFullDto;
-import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -16,18 +22,11 @@ public class PublicEventController {
     private final PublicEventService publicEventService;
 
     @GetMapping
-    public List<EventFullDto> getEvents(@RequestParam(required = false) String text,
-                                        @RequestParam(required = false) List<Long> categories,
-                                        @RequestParam(required = false, defaultValue = "false") Boolean paid,
-                                        @RequestParam(required = false) String rangeStart,
-                                        @RequestParam(required = false) String rangeEnd,
-                                        @RequestParam(defaultValue = "false") Boolean onlyAvailable,
+    public List<EventFullDto> getEvents(@ModelAttribute EventFilterDto eventFilterDto,
                                         @RequestParam(required = false) String sort,
                                         @RequestParam(defaultValue = "0") Integer from,
-                                        @RequestParam(defaultValue = "10") Integer size,
-                                        HttpServletRequest request) {
-        return publicEventService.getEvents(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size,
-                request.getRemoteAddr(), request.getRequestURI());
+                                        @RequestParam(defaultValue = "10") Integer size) {
+        return publicEventService.getEvents(eventFilterDto, sort, from, size);
     }
 
     @GetMapping("{id}")
@@ -36,7 +35,8 @@ public class PublicEventController {
     }
 
     @GetMapping("{eventId}/comments")
-    public List<CommentDto> getCommentByEvent(@PathVariable Long eventId, @RequestParam(defaultValue = "0") Integer from,
+    public List<CommentDto> getCommentByEvent(@PathVariable Long eventId,
+                                              @RequestParam(defaultValue = "0") Integer from,
                                               @RequestParam(defaultValue = "10") Integer size) {
         return publicEventService.getCommentsByEvent(eventId, from, size);
     }
