@@ -2,6 +2,11 @@ package ru.afishaBMSTU.events;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import ru.afishaBMSTU.events.dto.EventFilterDto;
 import ru.afishaBMSTU.exceptions.IncorrectParameterException;
 import ru.afishaBMSTU.exceptions.NotFoundException;
 import ru.afishaBMSTU.users.comments.CommentRepository;
@@ -14,13 +19,9 @@ import ru.afishaBMSTU.users.events.model.State;
 import ru.afishaBMSTU.users.events.model.Views;
 import ru.afishaBMSTU.users.events.model.dto.EventFullDto;
 import ru.afishaBMSTU.users.events.model.dto.EventMapper;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,351 +36,24 @@ public class PublicEventService {
     private final ViewsRepository viewsRepository;
     private final CommentRepository commentRepository;
 
-    public List<EventFullDto> getEvents(String text,
-                                        List<Long> categories,
-                                        boolean paid,
-                                        String rangeStart,
-                                        String rangeEnd,
-                                        boolean onlyAvailable,
-                                        String sort,
-                                        int from,
-                                        int size,
-                                        String ip,
-                                        String requestUri) {
+    public List<EventFullDto> getEvents(EventFilterDto filters, String sort, int from, int size) {
         if (sort == null) {
             sort = "VIEWS";
         }
 
-        if (rangeEnd != null) {
-            if (LocalDateTime.parse(rangeEnd, FORMATTER).isBefore(LocalDateTime.parse(rangeStart, FORMATTER))) {
+        if (filters.getRangeEnd() != null) {
+            if (LocalDateTime.parse(filters.getRangeEnd(), FORMATTER).isBefore(LocalDateTime.parse(filters.getRangeStart(), FORMATTER))) {
                 log.error("End time must be after start time");
                 throw new IncorrectParameterException("End time must be after start time");
             }
         }
-        List<Event> eventList;
+
         Pageable pageable = validatePageable(from, size);
-        if (rangeEnd == null) {
-            LocalDateTime times = LocalDateTime.now();
-            if (text == null) {
-                if (categories == null) {
-                    if (paid) {
-                        if (onlyAvailable) {
-                            if (sort.equals("VIEWS")) {
-                                eventList = repository.getEventsPaidAndAvailable(times, pageable);
-                            } else {
-                                eventList = repository.getEventsPaidAndAvailableByDate(times, pageable);
-                            }
-                        } else {
-                            if (sort.equals("VIEWS")) {
-                                eventList = repository.getEventsPaid(times, pageable);
-                            } else {
-                                eventList = repository.getEventsPaidByDate(times, pageable);
-                            }
-                        }
-                    } else {
-                        if (onlyAvailable) {
-                            if (sort.equals("VIEWS")) {
-                                eventList = repository.getEventsAvailable(times, pageable);
-                            } else {
-                                eventList = repository.getEventsAvailableByDate(times, pageable);
-                            }
-                        } else {
-                            if (sort.equals("VIEWS")) {
-                                eventList = repository.getEventsAll(times, pageable);
-                            } else {
-                                eventList = repository.getEventsAllByDate(times, pageable);
-                            }
-                        }
-                    }
-                } else {
-                    if (paid) {
-                        if (onlyAvailable) {
-                            if (sort.equals("VIEWS")) {
-                                eventList = repository.getEventsWitchCatAndPaidAndAvailable(categories,
-                                        times,
-                                        pageable);
-                            } else {
-                                eventList = repository.getEventsWitchCatAndPaidAndAvailableByDate(categories,
-                                        times,
-                                        pageable);
-                            }
-                        } else {
-                            if (sort.equals("VIEWS")) {
-                                eventList = repository.getEventsPaidAndCat(categories, times, pageable);
-                            } else {
-                                eventList = repository.getEventsPaidAndCatByDate(categories, times, pageable);
-                            }
-                        }
-                    } else {
-                        if (onlyAvailable) {
-                            if (sort.equals("VIEWS")) {
-                                eventList = repository.getEventsAvailableAndCat(categories, times, pageable);
-                            } else {
-                                eventList = repository.getEventsAvailableAndCatByDate(categories, times, pageable);
-                            }
-                        } else {
-                            if (sort.equals("VIEWS")) {
-                                eventList = repository.getEventsAllAndCat(categories, times, pageable);
-                            } else {
-                                eventList = repository.getEventsAllAndCatByDate(categories, times, pageable);
-                            }
-                        }
-                    }
-                }
-            } else {
-                if (categories == null) {
-                    if (paid) {
-                        if (onlyAvailable) {
-                            if (sort.equals("VIEWS")) {
-                                eventList = repository.getEventsTextAndAvailableAndPaid(text, times, pageable);
-                            } else {
-                                eventList = repository.getEventsTextAndAvailableAndPaidByDate(text, times, pageable);
-                            }
-                        } else {
-                            if (sort.equals("VIEWS")) {
-                                eventList = repository.getEventsTextAndPaid(text, times, pageable);
-                            } else {
-                                eventList = repository.getEventsTextAndPaidByDate(text, times, pageable);
-                            }
-                        }
-                    } else {
-                        if (onlyAvailable) {
-                            if (sort.equals("VIEWS")) {
-                                eventList = repository.getEventsTextAndAvailable(text, times, pageable);
-                            } else {
-                                eventList = repository.getEventsTextAndAvailableByDate(text, times, pageable);
-                            }
-                        } else {
-                            if (sort.equals("VIEWS")) {
-                                eventList = repository.getEventsText(text, times, pageable);
-                            } else {
-                                eventList = repository.getEventsTextByDate(text, times, pageable);
-                            }
-                        }
-                    }
-                } else {
-                    if (paid) {
-                        if (onlyAvailable) {
-                            if (sort.equals("VIEWS")) {
-                                eventList = repository.getEventsTextAndCategoriesAndAvailableAndPaid(text,
-                                        categories,
-                                        times,
-                                        pageable);
-                            } else {
-                                eventList = repository.getEventsTextAndCategoriesAndAvailableAndPaidByDate(text,
-                                        categories,
-                                        times,
-                                        pageable);
-                            }
-                        } else {
-                            if (sort.equals("VIEWS")) {
-                                eventList = repository.getEventsTextAndCategoriesAndPaid(text,
-                                        categories,
-                                        times,
-                                        pageable);
-                            } else {
-                                eventList = repository.getEventsTextAndCategoriesAndPaidByDate(text,
-                                        categories,
-                                        times,
-                                        pageable);
-                            }
-                        }
-                    } else {
-                        if (onlyAvailable) {
-                            if (sort.equals("VIEWS")) {
-                                eventList = repository.getEventsTextAndCategoriesAndAvailable(text,
-                                        categories,
-                                        times,
-                                        pageable);
-                            } else {
-                                eventList = repository.getEventsTextAndCategoriesAndAvailableByDate(text,
-                                        categories,
-                                        times,
-                                        pageable);
-                            }
-                        } else {
-                            if (sort.equals("VIEWS")) {
-                                eventList = repository.getEventsTextAndCategories(text, categories, times, pageable);
-                            } else {
-                                eventList = repository.getEventsTextAndCategoriesByDate(text, categories,
-                                        times, pageable);
-                            }
-                        }
-                    }
-                }
-            }
-        } else {
-            LocalDateTime start = LocalDateTime.parse(rangeStart, FORMATTER);
-            LocalDateTime end = LocalDateTime.parse(rangeEnd, FORMATTER);
-            if (text == null) {
-                if (categories == null) {
-                    if (paid) {
-                        if (onlyAvailable) {
-                            if (sort.equals("VIEWS")) {
-                                eventList = repository.getEventsPaidAndAvailable(start, end, pageable);
-                            } else {
-                                eventList = repository.getEventsPaidAndAvailableByDate(start, end, pageable);
-                            }
-                        } else {
-                            if (sort.equals("VIEWS")) {
-                                eventList = repository.getEventsPaid(start, end, pageable);
-                            } else {
-                                eventList = repository.getEventsPaidByDate(start, end, pageable);
-                            }
-                        }
-                    } else {
-                        if (onlyAvailable) {
-                            if (sort.equals("VIEWS")) {
-                                eventList = repository.getEventsAvailable(start, end, pageable);
-                            } else {
-                                eventList = repository.getEventsAvailableByDate(start, end, pageable);
-                            }
-                        } else {
-                            if (sort.equals("VIEWS")) {
-                                eventList = repository.getEventsAll(start, end, pageable);
-                            } else {
-                                eventList = repository.getEventsAllByDate(start, end, pageable);
-                            }
-                        }
-                    }
-                } else {
-                    if (paid) {
-                        if (onlyAvailable) {
-                            if (sort.equals("VIEWS")) {
-                                eventList = repository.getEventsWitchCatAndPaidAndAvailable(categories, start,
-                                        end, pageable);
-                            } else {
-                                eventList = repository.getEventsWitchCatAndPaidAndAvailableByDate(categories,
-                                        start,
-                                        end,
-                                        pageable);
-                            }
-                        } else {
-                            if (sort.equals("VIEWS")) {
-                                eventList = repository.getEventsPaidAndCat(categories, start, end, pageable);
-                            } else {
-                                eventList = repository.getEventsPaidAndCatByDate(categories, start, end, pageable);
-                            }
-                        }
-                    } else {
-                        if (onlyAvailable) {
-                            if (sort.equals("VIEWS")) {
-                                eventList = repository.getEventsAvailableAndCat(categories, start, end, pageable);
-                            } else {
-                                eventList = repository.getEventsAvailableAndCatByDate(categories, start, end, pageable);
-                            }
-                        } else {
-                            if (sort.equals("VIEWS")) {
-                                eventList = repository.getEventsAllAndCat(categories, start, end, pageable);
-                            } else {
-                                eventList = repository.getEventsAllAndCatByDate(categories, start, end, pageable);
-                            }
-                        }
-                    }
-                }
-            } else {
-                if (categories == null) {
-                    if (paid) {
-                        if (onlyAvailable) {
-                            if (sort.equals("VIEWS")) {
-                                eventList = repository.getEventsTextAndAvailableAndPaid(text.toLowerCase(),
-                                        start, end, pageable);
-                            } else {
-                                eventList = repository.getEventsTextAndAvailableAndPaidByDate(text.toLowerCase(),
-                                        start, end, pageable);
-                            }
-                        } else {
-                            if (sort.equals("VIEWS")) {
-                                eventList = repository.getEventsTextAndPaid(text.toLowerCase(), start, end, pageable);
-                            } else {
-                                eventList = repository.getEventsTextAndPaidByDate(text.toLowerCase(),
-                                        start, end, pageable);
-                            }
-                        }
-                    } else {
-                        if (onlyAvailable) {
-                            if (sort.equals("VIEWS")) {
-                                eventList = repository.getEventsTextAndAvailable(text.toLowerCase(),
-                                        start, end, pageable);
-                            } else {
-                                eventList = repository.getEventsTextAndAvailableByDate(text.toLowerCase(),
-                                        start, end, pageable);
-                            }
-                        } else {
-                            if (sort.equals("VIEWS")) {
-                                eventList = repository.getEventsText(text.toLowerCase(), start, end, pageable);
-                            } else {
-                                eventList = repository.getEventsTextByDate(text.toLowerCase(), start, end, pageable);
-                            }
-                        }
-                    }
-                } else {
-                    if (paid) {
-                        if (onlyAvailable) {
-                            if (sort.equals("VIEWS")) {
-                                eventList = repository.getEventsTextAndCategoriesAndAvailableAndPaid(text.toLowerCase(),
-                                        categories,
-                                        start,
-                                        end,
-                                        pageable);
-                            } else {
-                                eventList = repository
-                                        .getEventsTextAndCategoriesAndAvailableAndPaidByDate(text.toLowerCase(),
-                                                categories,
-                                                start,
-                                                end,
-                                                pageable);
-                            }
-                        } else {
-                            if (sort.equals("VIEWS")) {
-                                eventList = repository.getEventsTextAndCategoriesAndPaid(text.toLowerCase(),
-                                        categories,
-                                        start,
-                                        end,
-                                        pageable);
-                            } else {
-                                eventList = repository.getEventsTextAndCategoriesAndPaidByDate(text.toLowerCase(),
-                                        categories,
-                                        start,
-                                        end,
-                                        pageable);
-                            }
-                        }
-                    } else {
-                        if (onlyAvailable) {
-                            if (sort.equals("VIEWS")) {
-                                eventList = repository.getEventsTextAndCategoriesAndAvailable(text.toLowerCase(),
-                                        categories,
-                                        start,
-                                        end,
-                                        pageable);
-                            } else {
-                                eventList = repository.getEventsTextAndCategoriesAndAvailableByDate(text.toLowerCase(),
-                                        categories,
-                                        start,
-                                        end,
-                                        pageable);
-                            }
-                        } else {
-                            if (sort.equals("VIEWS")) {
-                                eventList = repository.getEventsTextAndCategories(text.toLowerCase(),
-                                        categories, start, end, pageable);
-                            } else {
-                                eventList = repository.getEventsTextAndCategoriesByDate(text.toLowerCase(), categories,
-                                        start, end, pageable);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        List<EventFullDto> eventFullDtoList = new ArrayList<>();
-        for (Event event : eventList) {
-            EventFullDto eventFullDto = EventMapper.toEventFullDto(event);
-            eventFullDtoList.add(eventFullDto);
-        }
-        log.info("Get all event with params successful");
-        return eventFullDtoList;
+        Specification<Event> spec = EventSpecification.withFilters(filters, sort);
+        List<Event> events = repository.findAll(spec, pageable).getContent();
+        return events.stream()
+                .map(EventMapper::toEventFullDto)
+                .toList();
     }
 
     public EventFullDto getEvent(Long id, String ip, String uri) {
