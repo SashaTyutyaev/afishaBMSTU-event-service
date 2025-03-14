@@ -42,7 +42,8 @@ public class PublicEventService {
         }
 
         if (filters.getRangeEnd() != null) {
-            if (LocalDateTime.parse(filters.getRangeEnd(), FORMATTER).isBefore(LocalDateTime.parse(filters.getRangeStart(), FORMATTER))) {
+            if (LocalDateTime.parse(filters.getRangeEnd(), FORMATTER)
+                    .isBefore(LocalDateTime.parse(filters.getRangeStart(), FORMATTER))) {
                 log.error("End time must be after start time");
                 throw new IncorrectParameterException("End time must be after start time");
             }
@@ -51,6 +52,7 @@ public class PublicEventService {
         Pageable pageable = validatePageable(from, size);
         Specification<Event> spec = EventSpecification.withFilters(filters, sort);
         List<Event> events = repository.findAll(spec, pageable).getContent();
+
         return events.stream()
                 .map(EventMapper::toEventFullDto)
                 .toList();
@@ -58,19 +60,23 @@ public class PublicEventService {
 
     public EventFullDto getEvent(Long id, String ip, String uri) {
         Event event = getEventById(id);
+
         if (!event.getState().equals(State.PUBLISHED)) {
             log.error("Event {} is not published", id);
             throw new NotFoundException("Event " + id + " is not published");
         }
+
         if (viewsRepository.findAllByEventIdAndIp(id, ip).isEmpty()) {
             event.setViews(event.getViews() + 1);
             repository.save(event);
             Views views = Views.builder()
                     .ip(ip)
                     .event(event)
+                    .viewedAt(LocalDateTime.now())
                     .build();
             viewsRepository.save(views);
         }
+
         log.info("Get event {} successful", event.getId());
         return EventMapper.toEventFullDto(event);
     }
