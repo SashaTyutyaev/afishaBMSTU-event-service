@@ -2,14 +2,14 @@ package ru.afishaBMSTU.admin.categories;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Service;
 import ru.afishaBMSTU.admin.categories.model.Category;
 import ru.afishaBMSTU.admin.categories.model.dto.CategoryDto;
 import ru.afishaBMSTU.admin.categories.model.dto.CategoryMapper;
 import ru.afishaBMSTU.exceptions.NotFoundException;
 import ru.afishaBMSTU.users.events.EventRepository;
 import ru.afishaBMSTU.users.events.model.Event;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
