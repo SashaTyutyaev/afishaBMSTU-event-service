@@ -23,6 +23,7 @@ public class EventMapper {
                 .paid(event.getPaid())
                 .title(event.getTitle())
                 .views(event.getViews())
+                .imageUrl(event.getImageUrl())
                 .build();
     }
 
@@ -44,6 +45,7 @@ public class EventMapper {
                 .publishedOn(event.getPublishedOn() != null ? FORMATTER.format(event.getPublishedOn()) : null)
                 .requestModeration(event.getRequestModeration())
                 .state(event.getState().toString())
+                .imageUrl(event.getImageUrl())
                 .build();
     }
 

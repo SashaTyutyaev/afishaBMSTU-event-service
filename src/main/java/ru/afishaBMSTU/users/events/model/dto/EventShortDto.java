@@ -12,22 +12,14 @@ import ru.afishaBMSTU.admin.users.model.dto.UserShortDto;
 @AllArgsConstructor
 @NoArgsConstructor
 public class EventShortDto {
-
     private String annotation;
-
     private CategoryDto category;
-
     private Integer confirmedRequests;
-
     private String eventDate;
-
     private Long id;
-
     private UserShortDto initiator;
-
     private Boolean paid;
-
     private String title;
-
     private Integer views;
+    private String imageUrl;
 }

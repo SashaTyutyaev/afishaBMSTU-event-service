@@ -18,3 +18,10 @@ spring:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/ewm-main}
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
     password: ${SPRING_DATASOURCE_PASSWORD:root-password-123}
+
+s3:
+  key-id: YCAJEHHi2qLpJtBi2OMqESqR6
+  secret-key: YCPZPcwl_BwVBwZzQGrTeqW50xnn0IwHhO_4TJQQ
+  region: ru-central1
+  s3-endpoint: https://storage.yandexcloud.net
+  bucket-name: afishabmstu

@@ -2,6 +2,12 @@ package ru.afishaBMSTU.users.events;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import ru.afishaBMSTU.admin.categories.CategoryRepository;
 import ru.afishaBMSTU.admin.categories.model.Category;
 import ru.afishaBMSTU.admin.users.UserRepository;
@@ -23,16 +29,18 @@ import ru.afishaBMSTU.users.requests.model.Request;
 import ru.afishaBMSTU.users.requests.model.RequestStatus;
 import ru.afishaBMSTU.users.requests.model.dto.ParticipationRequestDto;
 import ru.afishaBMSTU.users.requests.model.dto.RequestMapper;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,8 +48,15 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class EventService {
 
+    @Value("${s3.bucket-name}")
+    private String bucketName;
+
+    @Value("${s3.s3-endpoint}")
+    private String s3Endpoint;
+
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
+    private final S3Client s3Client;
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
@@ -83,11 +98,7 @@ public class EventService {
     public EventFullDto getEventByUserIdAndEventId(Long userId, Long eventId) {
         getUserById(userId);
         getEventById(eventId);
-        Event event = eventRepository.findByInitiatorIdAndId(userId, eventId);
-        if (event == null) {
-            log.error("Event not found for user id {} and event id {}", userId, eventId);
-            throw new NotFoundException("Event not found");
-        }
+        Event event = getEventByInitiatorAndEventId(userId, eventId);
         log.info("Successfully retrieved event: {}", event);
         return EventMapper.toEventFullDto(event);
     }
@@ -207,6 +218,35 @@ public class EventService {
         return result;
     }
 
+    public String uploadImage(MultipartFile file, Long userId, Long eventId) throws IOException {
+        Event event = getEventByInitiatorAndEventId(userId, eventId);
+
+        if (event.getImageKey() != null && event.getImageUrl() != null) {
+            DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(event.getImageKey())
+                    .build();
+
+            s3Client.deleteObject(deleteObjectRequest);
+        }
+
+        String fileName = "eventPictures/" + UUID.randomUUID() + file.getOriginalFilename();
+
+        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .bucket(bucketName)
+                .key(fileName)
+                .contentType(file.getContentType())
+                .build();
+
+        event.setImageKey(fileName);
+        event.setImageUrl(s3Endpoint + "/" + bucketName + "/" + fileName);
+
+        s3Client.putObject(putObjectRequest, RequestBody.fromBytes(file.getBytes()));
+        eventRepository.save(event);
+        log.info("Image successfully uploaded");
+        return s3Endpoint + "/" + bucketName + "/" + fileName;
+    }
+
     private void validateEventDate(String eventDate) {
         LocalDateTime date = LocalDateTime.parse(eventDate, FORMATTER);
         if (date.isBefore(LocalDateTime.now())) {
@@ -238,6 +278,13 @@ public class EventService {
         return eventRepository.findById(eventId).orElseThrow(() -> {
             log.error("Event with id {} not found", eventId);
             return new NotFoundException("Event with id " + eventId + " not found");
+        });
+    }
+
+    private Event getEventByInitiatorAndEventId(Long initiatorId, Long eventId) {
+        return eventRepository.findByInitiatorIdAndId(initiatorId, eventId).orElseThrow(() -> {
+            log.error("Event with id {} and initiator id {} not found", eventId, initiatorId);
+            return new NotFoundException("Event with id " + eventId + " and initiator id " + initiatorId + " not found");
         });
     }
 
