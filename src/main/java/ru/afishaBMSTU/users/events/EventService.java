@@ -12,6 +12,7 @@ import ru.afishaBMSTU.admin.categories.CategoryRepository;
 import ru.afishaBMSTU.admin.categories.model.Category;
 import ru.afishaBMSTU.admin.users.UserRepository;
 import ru.afishaBMSTU.admin.users.model.User;
+import ru.afishaBMSTU.client.F5AIClient;
 import ru.afishaBMSTU.exceptions.IncorrectParameterException;
 import ru.afishaBMSTU.exceptions.NotFoundException;
 import ru.afishaBMSTU.users.events.model.Event;
@@ -57,6 +58,7 @@ public class EventService {
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     private final S3Client s3Client;
+    private final F5AIClient f5AIClient;
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
@@ -240,6 +242,7 @@ public class EventService {
 
         event.setImageKey(fileName);
         event.setImageUrl(s3Endpoint + "/" + bucketName + "/" + fileName);
+        event.setDescriptionOfImage(f5AIClient.getImageDescription(file));
 
         s3Client.putObject(putObjectRequest, RequestBody.fromBytes(file.getBytes()));
         eventRepository.save(event);

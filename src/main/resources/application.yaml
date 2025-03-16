@@ -25,3 +25,8 @@ s3:
   region: ru-central1
   s3-endpoint: https://storage.yandexcloud.net
   bucket-name: afishabmstu
+
+integration:
+  f5-ai:
+    key: eyJ0eXAiOiJKV1QiLCJqdGkiOiI2N2Q2Mjc3M2EyOTg5NjEwNDAwNmQ4YWQiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiI2N2Q2Mjc3M2EyOTg5NjEwNDAwNmQ4YWQiLCJhY2NvdW50X2lkIjozOTQxLCJpc3MiOiJodHRwczovL2FwcC5mNWFpLnJ1IiwiYXVkIjoiaHR0cHM6Ly9hcGkuZjVhaS5ydSIsImlhdCI6MTc0MjA4ODA1MSwibmJmIjoxNzQyMDg4MDUxLCJ2ZW5kb3IiOiJvcGVuYWkiLCJzY29wZXMiOlsiY2hhdHMiXX0.nRnabqvqEaIIJa7gGah4XE-AjQQ5i67S7c2NluZwArg
+    url: https://api.f5ai.ru/v1/chat/completions

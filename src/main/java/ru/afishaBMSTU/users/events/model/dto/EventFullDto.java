@@ -30,4 +30,5 @@ public class EventFullDto {
     private String title;
     private Integer views;
     private String imageUrl;
+    private String imageDescription;
 }

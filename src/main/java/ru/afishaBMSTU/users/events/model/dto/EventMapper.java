@@ -24,6 +24,7 @@ public class EventMapper {
                 .title(event.getTitle())
                 .views(event.getViews())
                 .imageUrl(event.getImageUrl())
+                .imageDescription(event.getDescriptionOfImage())
                 .build();
     }
 
@@ -46,6 +47,7 @@ public class EventMapper {
                 .requestModeration(event.getRequestModeration())
                 .state(event.getState().toString())
                 .imageUrl(event.getImageUrl())
+                .imageDescription(event.getDescriptionOfImage())
                 .build();
     }
 
