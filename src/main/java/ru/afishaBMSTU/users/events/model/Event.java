@@ -48,6 +48,12 @@ public class Event {
     @Column(name = "description", length = 7000)
     private String description;
 
+    @Column(name = "image_url")
+    private String imageUrl;
+
+    @Column(name = "image_key")
+    private String imageKey;
+
     @Column(name = "event_date")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime eventDate;

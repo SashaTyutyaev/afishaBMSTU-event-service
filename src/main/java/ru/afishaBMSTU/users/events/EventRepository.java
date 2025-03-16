@@ -10,6 +10,7 @@ import ru.afishaBMSTU.users.events.model.State;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecificationExecutor<Event> {
@@ -18,7 +19,7 @@ public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecific
 
     List<Event> findAllByInitiatorId(Long initiatorId, Pageable pageable);
 
-    Event findByInitiatorIdAndId(Long initiatorId, Long id);
+    Optional<Event> findByInitiatorIdAndId(Long initiatorId, Long id);
 
     @Query("select e from Event e " +
             "where e.initiator.id in ?1 " +
@@ -156,4 +157,3 @@ public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecific
                                                                      LocalDateTime rangeEnd,
                                                                      Pageable pageable);
 }
-
