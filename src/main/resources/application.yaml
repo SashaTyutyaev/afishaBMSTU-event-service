@@ -25,6 +25,7 @@ s3:
   region: ru-central1
   s3-endpoint: https://storage.yandexcloud.net
   bucket-name: afishabmstu
+  package-name: eventPictures/
 
 integration:
   f5-ai:
