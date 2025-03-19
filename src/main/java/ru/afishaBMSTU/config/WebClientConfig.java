@@ -13,7 +13,7 @@ public class WebClientConfig implements WebFluxConfigurer {
     private String f5AIKey;
 
     @Bean
-    public WebClient F5AIWebClient() {
+    public WebClient f5AIWebClient() {
         return WebClient.builder()
                 .defaultHeader("X-Auth-Token", f5AIKey)
                 .build();

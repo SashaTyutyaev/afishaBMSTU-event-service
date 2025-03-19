@@ -6,7 +6,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
-import ru.afishaBMSTU.users.events.model.dto.gptResponse.GptResponseDto;
+import ru.afishaBMSTU.dto.gptResponse.GptResponseDto;
 import ru.afishaBMSTU.utility.GPTPrompts;
 
 import java.io.IOException;
