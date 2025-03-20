@@ -51,13 +51,13 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class EventServiceImpl implements EventService {
 
-    @Value("${s3.bucket-name}")
+    @Value("${integration.s3.bucket-name}")
     private String bucketName;
 
-    @Value("${s3.s3-endpoint}")
+    @Value("${integration.s3.s3-endpoint}")
     private String s3Endpoint;
 
-    @Value("${s3.package-name}")
+    @Value("${integration.s3.package-name}")
     private String s3PackageName;
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
