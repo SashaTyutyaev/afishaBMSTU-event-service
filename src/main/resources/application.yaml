@@ -19,15 +19,23 @@ spring:
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
     password: ${SPRING_DATASOURCE_PASSWORD:root-password-123}
 
-s3:
-  key-id: YCAJEHHi2qLpJtBi2OMqESqR6
-  secret-key: YCPZPcwl_BwVBwZzQGrTeqW50xnn0IwHhO_4TJQQ
-  region: ru-central1
-  s3-endpoint: https://storage.yandexcloud.net
-  bucket-name: afishabmstu
-  package-name: eventPictures/
-
 integration:
   f5-ai:
     key: eyJ0eXAiOiJKV1QiLCJqdGkiOiI2N2Q2Mjc3M2EyOTg5NjEwNDAwNmQ4YWQiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiI2N2Q2Mjc3M2EyOTg5NjEwNDAwNmQ4YWQiLCJhY2NvdW50X2lkIjozOTQxLCJpc3MiOiJodHRwczovL2FwcC5mNWFpLnJ1IiwiYXVkIjoiaHR0cHM6Ly9hcGkuZjVhaS5ydSIsImlhdCI6MTc0MjA4ODA1MSwibmJmIjoxNzQyMDg4MDUxLCJ2ZW5kb3IiOiJvcGVuYWkiLCJzY29wZXMiOlsiY2hhdHMiXX0.nRnabqvqEaIIJa7gGah4XE-AjQQ5i67S7c2NluZwArg
     url: https://api.f5ai.ru/v1/chat/completions
+  bmstu:
+    host: https://bmstu.ru
+    api-url: https://api.www.bmstu.ru/
+    events-url: events
+    news-url: news
+    url-params:
+      actual-events: isActual=
+      limit: limit=
+      offset: offset=
+  s3:
+    key-id: YCAJEHHi2qLpJtBi2OMqESqR6
+    secret-key: YCPZPcwl_BwVBwZzQGrTeqW50xnn0IwHhO_4TJQQ
+    region: ru-central1
+    s3-endpoint: https://storage.yandexcloud.net
+    bucket-name: afishabmstu
+    package-name: eventPictures/

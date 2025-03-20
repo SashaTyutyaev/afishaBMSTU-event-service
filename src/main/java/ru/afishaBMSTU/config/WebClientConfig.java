@@ -18,4 +18,10 @@ public class WebClientConfig implements WebFluxConfigurer {
                 .defaultHeader("X-Auth-Token", f5AIKey)
                 .build();
     }
+
+    @Bean
+    public WebClient bmstuWebClient() {
+        return WebClient.builder()
+                .build();
+    }
 }

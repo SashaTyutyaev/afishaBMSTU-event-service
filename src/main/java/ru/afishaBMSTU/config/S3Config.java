@@ -15,16 +15,16 @@ import java.net.URI;
 @Configuration
 public class S3Config {
 
-    @Value("${s3.key-id}")
+    @Value("${integration.s3.key-id}")
     private String keyId;
 
-    @Value("${s3.secret-key}")
+    @Value("${integration.s3.secret-key}")
     private String secretKey;
 
-    @Value("${s3.region}")
+    @Value("${integration.s3.region}")
     private String region;
 
-    @Value("${s3.s3-endpoint}")
+    @Value("${integration.s3.s3-endpoint}")
     private String s3Endpoint;
 
     @Bean
