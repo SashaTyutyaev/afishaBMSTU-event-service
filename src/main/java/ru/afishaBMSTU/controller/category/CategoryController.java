@@ -1,4 +1,4 @@
-package ru.afishaBMSTU.controller;
+package ru.afishaBMSTU.controller.category;
 
 import lombok.RequiredArgsConstructor;
 import ru.afishaBMSTU.dto.category.CategoryDto;
@@ -9,7 +9,7 @@ import ru.afishaBMSTU.service.category.CategoryServiceImpl;
 import java.util.List;
 
 @RestController
-@RequestMapping("/categories")
+@RequestMapping("/api/categories")
 @RequiredArgsConstructor
 public class CategoryController {
 

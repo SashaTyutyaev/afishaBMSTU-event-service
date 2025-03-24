@@ -6,6 +6,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.afishaBMSTU.dto.request.ParticipationRequestDto;
+import ru.afishaBMSTU.exceptions.IncorrectParameterException;
 import ru.afishaBMSTU.exceptions.NotFoundException;
 import ru.afishaBMSTU.mapper.RequestMapper;
 import ru.afishaBMSTU.model.event.Event;
@@ -81,8 +82,7 @@ public class RequestServiceImpl implements RequestService {
     @Override
     @Transactional
     public ParticipationRequestDto cancelRequest(Long userId, Long requestId) {
-        getUserById(userId);
-        Request request = getRequestById(requestId);
+        Request request = getRequestByInitiatorAndId(userId, requestId);
         if (request.getStatus().equals(RequestStatus.CONFIRMED)) {
             Event event = getEventById(request.getEvent().getId());
             event.setConfirmedRequests(event.getConfirmedRequests() - 1);
@@ -116,10 +116,10 @@ public class RequestServiceImpl implements RequestService {
         });
     }
 
-    private Request getRequestById(Long requestId) {
-        return requestRepository.findById(requestId).orElseThrow(() -> {
-            log.error("Request with id {} not found", requestId);
-            return new NotFoundException("Request with id " + requestId + " not found");
+    private Request getRequestByInitiatorAndId(Long userId, Long requestId) {
+        return requestRepository.findByIdAndUser(userId, requestId).orElseThrow(() -> {
+            log.error("User {} is not owner of the request {}", userId, requestId);
+            return new IncorrectParameterException("User is not owner of the request");
         });
     }
 }

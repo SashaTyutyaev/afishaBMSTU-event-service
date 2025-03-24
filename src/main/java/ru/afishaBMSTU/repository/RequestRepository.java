@@ -1,11 +1,11 @@
 package ru.afishaBMSTU.repository;
 
-import ru.afishaBMSTU.model.user.User;
-import ru.afishaBMSTU.model.event.Event;
-import ru.afishaBMSTU.model.request.Request;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import ru.afishaBMSTU.model.event.Event;
+import ru.afishaBMSTU.model.request.Request;
+import ru.afishaBMSTU.model.user.User;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,4 +20,8 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
     List<Request> findAllByUser(User user);
 
     List<Request> findAllByEvent(Event event);
+
+    @Query("select r from Request as r " +
+            "where r.user.id = ?1 and r.id = ?2")
+    Optional<Request> findByIdAndUser(Long userId, Long requestId);
 }

@@ -1,4 +1,4 @@
-package ru.afishaBMSTU.controller;
+package ru.afishaBMSTU.controller.compilation;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ import ru.afishaBMSTU.dto.compilation.UpdateCompilationRequest;
 import ru.afishaBMSTU.service.compilation.admin.CompilationAdminService;
 
 @RestController
-@RequestMapping("/admin/compilations")
+@RequestMapping("/api/admin/compilations")
 @RequiredArgsConstructor
 public class CompilationAdminController {
 

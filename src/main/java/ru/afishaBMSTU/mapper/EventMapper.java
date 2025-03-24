@@ -1,5 +1,6 @@
 package ru.afishaBMSTU.mapper;
 
+import lombok.RequiredArgsConstructor;
 import ru.afishaBMSTU.dto.event.EventFullDto;
 import ru.afishaBMSTU.dto.event.EventShortDto;
 import ru.afishaBMSTU.dto.event.NewEventDto;
@@ -9,9 +10,11 @@ import ru.afishaBMSTU.model.event.Location;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+@RequiredArgsConstructor
 public class EventMapper {
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
 
     public static EventShortDto toEventShortDto(Event event) {
         return EventShortDto.builder()
@@ -20,7 +23,6 @@ public class EventMapper {
                 .category(CategoryMapper.toCategoryDto(event.getCategory()))
                 .confirmedRequests(event.getConfirmedRequests())
                 .eventDate(FORMATTER.format(event.getEventDate()))
-                .initiator(UserMapper.toUserShortDto(event.getInitiator()))
                 .paid(event.getPaid())
                 .title(event.getTitle())
                 .views(event.getViews())
@@ -38,7 +40,6 @@ public class EventMapper {
                 .createdOn(FORMATTER.format(event.getCreatedOn()))
                 .description(event.getDescription())
                 .eventDate(FORMATTER.format(event.getEventDate()))
-                .initiator(UserMapper.toUserShortDto(event.getInitiator()))
                 .location(buildLocation(event.getLat(), event.getLon()))
                 .paid(event.getPaid())
                 .title(event.getTitle())

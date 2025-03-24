@@ -99,7 +99,6 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional(readOnly = true)
     public List<EventShortDto> getAllEventsByUserId(Long userId, Integer from, Integer size) {
-        getUserById(userId);
         Pageable pageable = validatePageable(from, size);
         List<Event> events = eventRepository.findAllByInitiatorId(userId, pageable);
         log.info("Successfully retrieved event by userId: {}", userId);
@@ -109,7 +108,6 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional(readOnly = true)
     public EventFullDto getEventByUserIdAndEventId(Long userId, Long eventId) {
-        getUserById(userId);
         getEventById(eventId);
         Event event = getEventByInitiatorAndEventId(userId, eventId);
         log.info("Successfully retrieved event: {}", event);
@@ -119,7 +117,6 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public EventFullDto updateEvent(Long eventId, UpdateEventUserRequest updatedEvent, Long userId) {
-        getUserById(userId);
         Event event = getEventById(eventId);
         if (Objects.equals(event.getInitiator().getId(), userId)) {
             if (event.getState().equals(State.PUBLISHED)) {
@@ -184,8 +181,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ParticipationRequestDto> getRequests(Long userId, Long eventId) {
-        getUserById(userId);
+    public List<ParticipationRequestDto> getRequests(Long eventId) {
         Event event = getEventById(eventId);
         List<Request> requests = requestRepository.findAllByEvent(event);
         return requests.stream().map(RequestMapper::toParticipationRequestDto).collect(Collectors.toList());
@@ -195,8 +191,7 @@ public class EventServiceImpl implements EventService {
     @Transactional
     public EventRequestStatusUpdateResult updateRequestStatus(Long userId, Long eventId,
                                                               EventRequestStatusUpdateRequest updateRequest) {
-        getUserById(userId);
-        Event event = getEventById(eventId);
+        Event event = getEventByInitiatorAndEventId(userId, eventId);
         EventRequestStatusUpdateResult result = new EventRequestStatusUpdateResult();
         List<ParticipationRequestDto> confirmedReqs = new ArrayList<>();
         List<ParticipationRequestDto> canceledReqs = new ArrayList<>();

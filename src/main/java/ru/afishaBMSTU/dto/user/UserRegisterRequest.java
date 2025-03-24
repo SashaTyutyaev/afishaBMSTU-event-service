@@ -4,30 +4,36 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.validator.constraints.Length;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDto {
-
-    private Long id;
+public class UserRegisterRequest {
 
     @NotNull
     @NotEmpty
     @NotBlank
-    @Length(min = 2, max = 250)
+    private String nickname;
+
+    @NotNull
+    @NotEmpty
+    @NotBlank
     private String name;
 
-    @Email
     @NotNull
     @NotEmpty
     @NotBlank
-    @Length(min = 6, max = 254)
-    private String email;
+    private String surname;
+
+    private String groupName;
+
+    @Size(min = 8, max = 500)
+    private String password;
 }

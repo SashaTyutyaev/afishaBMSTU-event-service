@@ -1,39 +1,47 @@
 package ru.afishaBMSTU.mapper;
 
-import ru.afishaBMSTU.dto.user.UserDto;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
+import ru.afishaBMSTU.dto.user.UserFullDto;
+import ru.afishaBMSTU.dto.user.UserRegisterRequest;
 import ru.afishaBMSTU.dto.user.UserShortDto;
+import ru.afishaBMSTU.model.email.Email;
+import ru.afishaBMSTU.model.phone.Phone;
 import ru.afishaBMSTU.model.user.User;
 
-public class UserMapper {
+import java.util.Set;
+import java.util.stream.Collectors;
 
-    public static User toUser(UserDto userDto) {
-        return User.builder()
-                .email(userDto.getEmail())
-                .name(userDto.getName())
-                .build();
+@Mapper(componentModel = "spring")
+public interface UserMapper {
+
+    @Mapping(target = "emails", source = "emails", qualifiedByName = "mapEmails")
+    @Mapping(target = "phones", source = "phones", qualifiedByName = "mapPhones")
+    UserFullDto toUserFullDto(User user);
+
+    @Named("mapEmails")
+    default Set<String> mapEmails(Set<Email> emails) {
+        if (emails == null) {
+            return null;
+        }
+        return emails.stream()
+                .map(Email::getEmail)
+                .collect(Collectors.toSet());
     }
 
-    public static UserDto toUserDto(User user) {
-        return UserDto.builder()
-                .id(user.getId())
-                .email(user.getEmail())
-                .name(user.getName())
-                .build();
+    @Named("mapPhones")
+    default Set<String> mapPhones(Set<Phone> phones) {
+        if (phones == null) {
+            return null;
+        }
+        return phones.stream()
+                .map(Phone::getPhone)
+                .collect(Collectors.toSet());
     }
 
-    public static UserShortDto toUserShortDto(User user) {
-        return UserShortDto.builder()
-                .id(user.getId())
-                .name(user.getName())
-                .build();
-    }
+    @Mapping(target = "password", ignore = true)
+    User toUser(UserRegisterRequest userRegisterRequest);
 
-    public static UserShortDto toUserShortDto(UserDto userDto) {
-        return UserShortDto.builder()
-                .id(userDto.getId())
-                .name(userDto.getName())
-                .build();
-    }
-
-
+    UserShortDto toUserShortDto(User user);
 }

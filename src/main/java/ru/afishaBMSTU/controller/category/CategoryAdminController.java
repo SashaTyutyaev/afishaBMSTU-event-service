@@ -1,4 +1,4 @@
-package ru.afishaBMSTU.controller;
+package ru.afishaBMSTU.controller.category;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,7 @@ import ru.afishaBMSTU.dto.category.NewCategoryDto;
 import ru.afishaBMSTU.service.category.admin.CategoryAdminService;
 
 @RestController
-@RequestMapping("/admin/categories")
+@RequestMapping("/api/admin/categories")
 @RequiredArgsConstructor
 public class CategoryAdminController {
 

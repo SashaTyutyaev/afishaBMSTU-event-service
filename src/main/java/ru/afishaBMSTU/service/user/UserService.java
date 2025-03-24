@@ -1,11 +1,15 @@
 package ru.afishaBMSTU.service.user;
 
-import ru.afishaBMSTU.dto.user.UserDto;
+import ru.afishaBMSTU.dto.user.UserFullDto;
+import ru.afishaBMSTU.dto.user.UserRegisterRequest;
+import ru.afishaBMSTU.dto.user.UserShortDto;
 
 import java.util.List;
 
 public interface UserService {
-    UserDto addUser(UserDto userDto);
-    List<UserDto> getAllUsers(List<Long> ids, Integer from, Integer size);
+    UserFullDto registerUser(UserRegisterRequest userRegisterRequest);
+
+    UserFullDto getUser(Long userId);
+
     void deleteUser(Long id);
 }

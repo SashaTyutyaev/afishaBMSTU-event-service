@@ -17,7 +17,7 @@ public interface EventService {
     List<EventShortDto> getAllEventsByUserId(Long userId, Integer from, Integer size);
     EventFullDto getEventByUserIdAndEventId(Long userId, Long eventId);
     EventFullDto updateEvent(Long eventId, UpdateEventUserRequest updatedEvent, Long userId);
-    List<ParticipationRequestDto> getRequests(Long userId, Long eventId);
+    List<ParticipationRequestDto> getRequests(Long eventId);
     EventRequestStatusUpdateResult updateRequestStatus(Long userId, Long eventId,
                                                        EventRequestStatusUpdateRequest updateRequest);
     String uploadImage(MultipartFile file, Long userId, Long eventId) throws IOException;

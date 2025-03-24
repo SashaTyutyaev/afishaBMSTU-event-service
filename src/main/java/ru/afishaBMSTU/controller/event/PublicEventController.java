@@ -1,4 +1,4 @@
-package ru.afishaBMSTU.controller;
+package ru.afishaBMSTU.controller.event;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/events")
+@RequestMapping("/api/events")
 public class PublicEventController {
 
     private final PublicEventService publicEventService;

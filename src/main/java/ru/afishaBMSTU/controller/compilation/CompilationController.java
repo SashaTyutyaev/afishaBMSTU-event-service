@@ -1,4 +1,4 @@
-package ru.afishaBMSTU.controller;
+package ru.afishaBMSTU.controller.compilation;
 
 import lombok.RequiredArgsConstructor;
 import ru.afishaBMSTU.dto.compilation.CompilationDto;
@@ -9,7 +9,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/compilations")
+@RequestMapping("/api/compilations")
 public class CompilationController {
 
     private final CompilationService compilationService;

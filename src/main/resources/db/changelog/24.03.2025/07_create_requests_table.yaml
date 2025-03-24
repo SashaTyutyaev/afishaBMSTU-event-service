@@ -1,0 +1,39 @@
+databaseChangeLog:
+  - changeSet:
+      id: 24.03.2025_6
+      author: sashatut2004@yandex.ru
+      changes:
+        - createTable:
+            tableName: requests
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: created
+                  type: timestamp(6)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: event_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_requests_events
+                    references: events(id)
+              - column:
+                  name: requester_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_requests_users
+                    references: users(id)

@@ -1,0 +1,30 @@
+databaseChangeLog:
+  - changeSet:
+      id: 24.03.2025_8
+      author: sashatut2004@yandex.ru
+      changes:
+        - createTable:
+            tableName: compilations
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: pinned
+                  type: boolean
+                  constraints:
+                    nullable: false
+              - column:
+                  name: title
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: type
+                  type: varchar(255)
+                  constraints:
+                    nullable: false

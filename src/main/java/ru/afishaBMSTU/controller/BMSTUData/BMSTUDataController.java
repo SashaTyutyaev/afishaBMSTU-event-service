@@ -1,4 +1,4 @@
-package ru.afishaBMSTU.controller;
+package ru.afishaBMSTU.controller.BMSTUData;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -11,7 +11,7 @@ import ru.afishaBMSTU.dto.bmstu.response.BMSTUResponseDto;
 import ru.afishaBMSTU.service.bmstu.BMSTUDataService;
 
 @RestController
-@RequestMapping("/bmstu-data")
+@RequestMapping("/api/users/bmstu-data")
 @RequiredArgsConstructor
 public class BMSTUDataController {
 

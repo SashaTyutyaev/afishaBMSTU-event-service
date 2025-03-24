@@ -1,4 +1,4 @@
-package ru.afishaBMSTU.controller;
+package ru.afishaBMSTU.controller.event;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,7 @@ import ru.afishaBMSTU.service.event.admin.AdminEventService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/admin/events")
+@RequestMapping("/api/admin/events")
 @RequiredArgsConstructor
 public class AdminEventController {
 
