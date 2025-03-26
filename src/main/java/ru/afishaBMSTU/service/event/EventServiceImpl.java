@@ -27,11 +27,9 @@ import ru.afishaBMSTU.model.event.Event;
 import ru.afishaBMSTU.model.event.State;
 import ru.afishaBMSTU.model.request.Request;
 import ru.afishaBMSTU.model.request.RequestStatus;
-import ru.afishaBMSTU.model.user.User;
 import ru.afishaBMSTU.repository.CategoryRepository;
 import ru.afishaBMSTU.repository.EventRepository;
 import ru.afishaBMSTU.repository.RequestRepository;
-import ru.afishaBMSTU.repository.UserRepository;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
@@ -65,13 +63,14 @@ public class EventServiceImpl implements EventService {
     private final S3Client s3Client;
     private final F5AIClient f5AIClient;
     private final EventRepository eventRepository;
-    private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final RequestRepository requestRepository;
+    private final EventMapper eventMapper;
+    private final RequestMapper requestMapper;
 
     @Override
     @Transactional
-    public EventFullDto createEvent(NewEventDto newEventDto, Long userId) {
+    public EventFullDto createEvent(NewEventDto newEventDto, UUID externalId) {
         validateEventDate(newEventDto.getEventDate());
         if (newEventDto.getPaid() == null) {
             newEventDto.setPaid(false);
@@ -82,9 +81,8 @@ public class EventServiceImpl implements EventService {
         if (newEventDto.getParticipantLimit() == null) {
             newEventDto.setParticipantLimit(0);
         }
-        Event event = EventMapper.toEvent(newEventDto);
-        User user = getUserById(userId);
-        event.setInitiator(user);
+        Event event = eventMapper.toEvent(newEventDto);
+        event.setInitiatorExternalId(externalId);
         Category category = getCategoryById(newEventDto.getCategory());
         event.setCategory(category);
         event.setState(State.PENDING);
@@ -93,32 +91,31 @@ public class EventServiceImpl implements EventService {
         event.setViews(0);
         log.info("Successfully created new event: {}", event);
         Event savedEvent = eventRepository.save(event);
-        return EventMapper.toEventFullDto(savedEvent);
+        return eventMapper.toEventFullDto(savedEvent);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<EventShortDto> getAllEventsByUserId(Long userId, Integer from, Integer size) {
+    public List<EventShortDto> getAllEventsByUserId(UUID externalId, Integer from, Integer size) {
         Pageable pageable = validatePageable(from, size);
-        List<Event> events = eventRepository.findAllByInitiatorId(userId, pageable);
-        log.info("Successfully retrieved event by userId: {}", userId);
-        return events.stream().map(EventMapper::toEventShortDto).collect(Collectors.toList());
+        List<Event> events = eventRepository.findAllByInitiatorExternalId(externalId, pageable);
+        log.info("Successfully retrieved event by userExternalId: {}", externalId);
+        return events.stream().map(eventMapper::toEventShortDto).collect(Collectors.toList());
     }
 
     @Override
     @Transactional(readOnly = true)
-    public EventFullDto getEventByUserIdAndEventId(Long userId, Long eventId) {
-        getEventById(eventId);
-        Event event = getEventByInitiatorAndEventId(userId, eventId);
+    public EventFullDto getEventByUserIdAndEventId(UUID externalId, Long eventId) {
+        Event event = getEventByInitiatorAndEventId(externalId, eventId);
         log.info("Successfully retrieved event: {}", event);
-        return EventMapper.toEventFullDto(event);
+        return eventMapper.toEventFullDto(event);
     }
 
     @Override
     @Transactional
-    public EventFullDto updateEvent(Long eventId, UpdateEventUserRequest updatedEvent, Long userId) {
+    public EventFullDto updateEvent(Long eventId, UpdateEventUserRequest updatedEvent, UUID externalId) {
         Event event = getEventById(eventId);
-        if (Objects.equals(event.getInitiator().getId(), userId)) {
+        if (Objects.equals(event.getInitiatorExternalId(), externalId)) {
             if (event.getState().equals(State.PUBLISHED)) {
                 log.error("Event {} already published", eventId);
                 throw new DataIntegrityViolationException("Event already published");
@@ -150,8 +147,7 @@ public class EventServiceImpl implements EventService {
                 event.setEventDate(updateEventDate);
             }
             if (updatedEvent.getLocation() != null) {
-                event.setLat(updatedEvent.getLocation().getLat());
-                event.setLon(updatedEvent.getLocation().getLon());
+                event.setLocation(updatedEvent.getLocation());
             }
             if (updatedEvent.getPaid() != null) {
                 event.setPaid(updatedEvent.getPaid());
@@ -172,7 +168,7 @@ public class EventServiceImpl implements EventService {
             if (updatedEvent.getTitle() != null) {
                 event.setTitle(updatedEvent.getTitle());
             }
-            return EventMapper.toEventFullDto(eventRepository.save(event));
+            return eventMapper.toEventFullDto(eventRepository.save(event));
         } else {
             log.error("User is not owner of event {}", eventId);
             throw new IncorrectParameterException("User is not owner of event " + eventId);
@@ -181,17 +177,17 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ParticipationRequestDto> getRequests(Long eventId) {
-        Event event = getEventById(eventId);
+    public List<ParticipationRequestDto> getRequests(Long eventId, UUID externalId) {
+        Event event = getEventByInitiatorAndEventId(externalId, eventId);
         List<Request> requests = requestRepository.findAllByEvent(event);
-        return requests.stream().map(RequestMapper::toParticipationRequestDto).collect(Collectors.toList());
+        return requests.stream().map(requestMapper::toParticipationRequestDto).collect(Collectors.toList());
     }
 
     @Override
     @Transactional
-    public EventRequestStatusUpdateResult updateRequestStatus(Long userId, Long eventId,
+    public EventRequestStatusUpdateResult updateRequestStatus(UUID externalId, Long eventId,
                                                               EventRequestStatusUpdateRequest updateRequest) {
-        Event event = getEventByInitiatorAndEventId(userId, eventId);
+        Event event = getEventByInitiatorAndEventId(externalId, eventId);
         EventRequestStatusUpdateResult result = new EventRequestStatusUpdateResult();
         List<ParticipationRequestDto> confirmedReqs = new ArrayList<>();
         List<ParticipationRequestDto> canceledReqs = new ArrayList<>();
@@ -210,18 +206,18 @@ public class EventServiceImpl implements EventService {
                 if (event.getConfirmedRequests() >= event.getParticipantLimit() && event.getParticipantLimit() != 0) {
                     log.error("The participant limit is reached");
                     request.setStatus(RequestStatus.CANCELED);
-                    confirmedReqs.add(RequestMapper.toParticipationRequestDto(request));
+                    confirmedReqs.add(requestMapper.toParticipationRequestDto(request));
                     requestRepository.save(request);
                     throw new DataIntegrityViolationException("The participant limit is reached");
                 }
                 request.setStatus(RequestStatus.CONFIRMED);
                 event.setConfirmedRequests(event.getConfirmedRequests() + 1);
-                confirmedReqs.add(RequestMapper.toParticipationRequestDto(request));
+                confirmedReqs.add(requestMapper.toParticipationRequestDto(request));
                 requestRepository.save(request);
                 log.info("Successfully confirmed request {}", id);
             } else {
                 request.setStatus(RequestStatus.REJECTED);
-                canceledReqs.add(RequestMapper.toParticipationRequestDto(request));
+                canceledReqs.add(requestMapper.toParticipationRequestDto(request));
                 requestRepository.save(request);
                 log.info("Successfully rejected request {}", id);
             }
@@ -234,8 +230,8 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public String uploadImage(MultipartFile file, Long userId, Long eventId) throws IOException {
-        Event event = getEventByInitiatorAndEventId(userId, eventId);
+    public String uploadImage(MultipartFile file, UUID externalId, Long eventId) throws IOException {
+        Event event = getEventByInitiatorAndEventId(externalId, eventId);
 
         if (event.getImageKey() != null && event.getImageUrl() != null) {
             DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
@@ -277,13 +273,6 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-    private User getUserById(Long userId) {
-        return userRepository.findById(userId).orElseThrow(() -> {
-            log.error("User with id {} not found", userId);
-            return new NotFoundException("User with id " + userId + " not found");
-        });
-    }
-
     private Category getCategoryById(Integer categoryId) {
         return categoryRepository.findById(Long.valueOf(categoryId)).orElseThrow(() -> {
             log.error("Category with id {} not found", categoryId);
@@ -298,10 +287,10 @@ public class EventServiceImpl implements EventService {
         });
     }
 
-    private Event getEventByInitiatorAndEventId(Long initiatorId, Long eventId) {
-        return eventRepository.findByInitiatorIdAndId(initiatorId, eventId).orElseThrow(() -> {
-            log.error("Event with id {} and initiator id {} not found", eventId, initiatorId);
-            return new NotFoundException("Event with id " + eventId + " and initiator id " + initiatorId + " not found");
+    private Event getEventByInitiatorAndEventId(UUID externalId, Long eventId) {
+        return eventRepository.findByInitiatorExternalIdAndId(externalId, eventId).orElseThrow(() -> {
+            log.error("Event with id {} and initiator id {} not found", eventId, externalId);
+            return new NotFoundException("Event with id " + eventId + " and initiator id " + externalId + " not found");
         });
     }
 

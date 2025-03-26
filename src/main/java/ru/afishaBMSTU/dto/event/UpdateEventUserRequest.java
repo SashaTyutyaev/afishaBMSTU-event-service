@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.afishaBMSTU.model.event.Location;
 import org.hibernate.validator.constraints.Length;
 
 @Data
@@ -24,7 +23,7 @@ public class UpdateEventUserRequest {
 
     private String eventDate;
 
-    private Location location;
+    private String location;
 
     private Boolean paid;
 

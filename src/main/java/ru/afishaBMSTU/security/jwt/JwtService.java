@@ -1,45 +1,16 @@
 package ru.afishaBMSTU.security.jwt;
 
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import ru.afishaBMSTU.exceptions.IncorrectTokenException;
 
-import java.security.Key;
-import java.util.Date;
+import afishaBMSTU.auth_lib.security.BaseJwtService;
+import org.springframework.stereotype.Service;
+import ru.afishaBMSTU.dto.jwt.JwtTokenDataDto;
 
 @Service
-@Slf4j
-public class JwtService {
+public class JwtService extends BaseJwtService<JwtTokenDataDto> {
 
-    @Value("${security.jwt.secret}")
-    private String secret;
-
-    public String generateToken(String nickname) {
-        return Jwts.builder()
-                .setSubject(nickname)
-                .setIssuedAt(new Date())
-                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
-                .compact();
+    @Override
+    protected Class<JwtTokenDataDto> getDataType() {
+        return JwtTokenDataDto.class;
     }
 
-    public String extractUserNickname(String token) {
-        if (token == null || !token.startsWith("Bearer")) {
-            throw new IncorrectTokenException("Missing bearer prefix");
-        }
-
-        return Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
-                .build()
-                .parseClaimsJws(token.substring(7))
-                .getBody()
-                .getSubject();
-    }
-
-    private Key getSigningKey() {
-        return Keys.hmacShaKeyFor(secret.getBytes());
-    }
 }

@@ -37,6 +37,8 @@ public class PublicEventServiceImpl implements PublicEventService {
     private final EventRepository repository;
     private final ViewsRepository viewsRepository;
     private final CommentRepository commentRepository;
+    private final CommentMapper commentMapper;
+    private final EventMapper eventMapper;
 
     @Override
     @Transactional(readOnly = true)
@@ -58,7 +60,7 @@ public class PublicEventServiceImpl implements PublicEventService {
         List<Event> events = repository.findAll(spec, pageable).getContent();
 
         return events.stream()
-                .map(EventMapper::toEventFullDto)
+                .map(eventMapper::toEventFullDto)
                 .toList();
     }
 
@@ -84,7 +86,7 @@ public class PublicEventServiceImpl implements PublicEventService {
         }
 
         log.info("Get event {} successful", event.getId());
-        return EventMapper.toEventFullDto(event);
+        return eventMapper.toEventFullDto(event);
     }
 
     @Override
@@ -93,7 +95,7 @@ public class PublicEventServiceImpl implements PublicEventService {
         Pageable pageable = validatePageable(from, size);
         Event event = getEventById(eventId);
         return commentRepository.getCommentsByEvent(event, pageable).stream()
-                .map(CommentMapper::toCommentDto).collect(Collectors.toList());
+                .map(commentMapper::toCommentDto).collect(Collectors.toList());
     }
 
     private PageRequest validatePageable(Integer from, Integer size) {

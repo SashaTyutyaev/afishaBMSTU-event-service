@@ -10,12 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class CommentDto {
-
     private Long id;
-
     private String text;
-
-    private Long authorId;
-
     private String createdAt;
 }

@@ -1,27 +1,24 @@
 package ru.afishaBMSTU.mapper;
 
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 import ru.afishaBMSTU.dto.comment.CommentDto;
 import ru.afishaBMSTU.dto.comment.NewCommentDto;
 import ru.afishaBMSTU.model.comment.Comment;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-public class CommentMapper {
+@Mapper(componentModel = "spring",
+        imports = {DateTimeFormatter.class, LocalDateTime.class})
+public interface CommentMapper {
 
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    public static Comment toComment(NewCommentDto newCommentDto) {
-        return Comment.builder()
-                .text(newCommentDto.getText())
-                .build();
-    }
+    Comment toComment(NewCommentDto newCommentDto);
 
-    public static CommentDto toCommentDto(Comment comment) {
-        return CommentDto.builder()
-                .id(comment.getId())
-                .text(comment.getText())
-                .authorId(comment.getUser().getId())
-                .createdAt(FORMATTER.format(comment.getCreatedAt()))
-                .build();
-    }
+    @Mapping(target = "createdAt", expression = "java(FORMATTER.format(comment.getCreatedAt()))")
+    CommentDto toCommentDto(Comment comment);
+
 }

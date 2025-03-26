@@ -23,15 +23,16 @@ public class CategoryAdminServiceImpl implements CategoryAdminService {
 
     private final CategoryRepository categoryRepository;
     private final EventRepository eventRepository;
+    private final CategoryMapper categoryMapper;
 
     @Override
     @Transactional
     public CategoryDto createCategory(NewCategoryDto categoryDto) {
         try {
-            Category category = CategoryMapper.toCategory(categoryDto);
+            Category category = categoryMapper.toCategory(categoryDto);
             categoryRepository.save(category);
             log.info("Successfully added category: {}", category);
-            return CategoryMapper.toCategoryDto(category);
+            return categoryMapper.toCategoryDto(category);
         } catch (DataIntegrityViolationException e) {
             log.error("Name already in use: {}", categoryDto.getName());
             throw new DataIntegrityViolationException("Name already in use");
@@ -46,7 +47,7 @@ public class CategoryAdminServiceImpl implements CategoryAdminService {
             category.setName(categoryDto.getName());
             categoryRepository.save(category);
             log.info("Successfully updated category: {}", category);
-            return CategoryMapper.toCategoryDto(category);
+            return categoryMapper.toCategoryDto(category);
         } catch (DataIntegrityViolationException e) {
             log.error("Name already in use: {}", categoryDto.getName());
             throw new DataIntegrityViolationException("Name already in use");

@@ -13,14 +13,13 @@ import ru.afishaBMSTU.model.event.Event;
 import ru.afishaBMSTU.model.event.State;
 import ru.afishaBMSTU.model.request.Request;
 import ru.afishaBMSTU.model.request.RequestStatus;
-import ru.afishaBMSTU.model.user.User;
 import ru.afishaBMSTU.repository.EventRepository;
 import ru.afishaBMSTU.repository.RequestRepository;
-import ru.afishaBMSTU.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,14 +29,13 @@ public class RequestServiceImpl implements RequestService {
 
     private final RequestRepository requestRepository;
     private final EventRepository eventRepository;
-    private final UserRepository userRepository;
+    private final RequestMapper requestMapper;
 
     @Override
     @Transactional
-    public ParticipationRequestDto createRequest(Long userId, Long eventId) {
-        User user = getUserById(userId);
+    public ParticipationRequestDto createRequest(UUID externalId, Long eventId) {
         Event event = getEventById(eventId);
-        if (Objects.equals(event.getInitiator().getId(), userId)) {
+        if (Objects.equals(event.getInitiatorExternalId(), externalId)) {
             log.error("Initiator cant sent request to his own event");
             throw new DataIntegrityViolationException("Initiator cant sent request to his own event");
         }
@@ -51,7 +49,7 @@ public class RequestServiceImpl implements RequestService {
                 throw new DataIntegrityViolationException("Participant limit exceeded");
             }
         }
-        if (requestRepository.findByRequesterAndEvent(userId, eventId).isPresent()) {
+        if (requestRepository.findByRequesterAndEvent(externalId, eventId).isPresent()) {
             log.error("Request already exists");
             throw new DataIntegrityViolationException("Request already exists");
         }
@@ -61,7 +59,7 @@ public class RequestServiceImpl implements RequestService {
                     .status(RequestStatus.CONFIRMED)
                     .created(LocalDateTime.now())
                     .event(event)
-                    .user(user)
+                    .userExternalId(externalId)
                     .build();
             requestRepository.save(request);
             event.setConfirmedRequests(event.getConfirmedRequests() + 1);
@@ -71,18 +69,18 @@ public class RequestServiceImpl implements RequestService {
                     .status(RequestStatus.PENDING)
                     .created(LocalDateTime.now())
                     .event(event)
-                    .user(user)
+                    .userExternalId(externalId)
                     .build();
             requestRepository.save(request);
         }
         log.info("Request created successful");
-        return RequestMapper.toParticipationRequestDto(request);
+        return requestMapper.toParticipationRequestDto(request);
     }
 
     @Override
     @Transactional
-    public ParticipationRequestDto cancelRequest(Long userId, Long requestId) {
-        Request request = getRequestByInitiatorAndId(userId, requestId);
+    public ParticipationRequestDto cancelRequest(UUID externalId, Long requestId) {
+        Request request = getRequestByInitiatorAndId(externalId, requestId);
         if (request.getStatus().equals(RequestStatus.CONFIRMED)) {
             Event event = getEventById(request.getEvent().getId());
             event.setConfirmedRequests(event.getConfirmedRequests() - 1);
@@ -90,16 +88,15 @@ public class RequestServiceImpl implements RequestService {
         }
         request.setStatus(RequestStatus.CANCELED);
         log.info("Request cancelled successful");
-        return RequestMapper.toParticipationRequestDto(request);
+        return requestMapper.toParticipationRequestDto(request);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<ParticipationRequestDto> getRequests(Long userId) {
-        User user = getUserById(userId);
-        List<Request> requests = requestRepository.findAllByUser(user);
-        log.info("Get requests from user {}", userId);
-        return requests.stream().map(RequestMapper::toParticipationRequestDto).collect(Collectors.toList());
+    public List<ParticipationRequestDto> getRequests(UUID externalId) {
+        List<Request> requests = requestRepository.findAllByUserExternalId(externalId);
+        log.info("Get requests from user {}", externalId);
+        return requests.stream().map(requestMapper::toParticipationRequestDto).collect(Collectors.toList());
     }
 
     private Event getEventById(Long eventId) {
@@ -109,16 +106,9 @@ public class RequestServiceImpl implements RequestService {
         });
     }
 
-    private User getUserById(Long userId) {
-        return userRepository.findById(userId).orElseThrow(() -> {
-            log.error("User with id {} not found", userId);
-            return new NotFoundException("User with id " + userId + " not found");
-        });
-    }
-
-    private Request getRequestByInitiatorAndId(Long userId, Long requestId) {
-        return requestRepository.findByIdAndUser(userId, requestId).orElseThrow(() -> {
-            log.error("User {} is not owner of the request {}", userId, requestId);
+    private Request getRequestByInitiatorAndId(UUID externalId, Long requestId) {
+        return requestRepository.findByIdAndUser(externalId, requestId).orElseThrow(() -> {
+            log.error("User {} is not owner of the request {}", externalId, requestId);
             return new IncorrectParameterException("User is not owner of the request");
         });
     }

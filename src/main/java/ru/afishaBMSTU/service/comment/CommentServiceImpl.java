@@ -15,13 +15,12 @@ import ru.afishaBMSTU.exceptions.NotFoundException;
 import ru.afishaBMSTU.mapper.CommentMapper;
 import ru.afishaBMSTU.model.comment.Comment;
 import ru.afishaBMSTU.model.event.Event;
-import ru.afishaBMSTU.model.user.User;
 import ru.afishaBMSTU.repository.CommentRepository;
 import ru.afishaBMSTU.repository.EventRepository;
-import ru.afishaBMSTU.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,41 +30,38 @@ public class CommentServiceImpl implements CommentService {
 
     private final CommentRepository commentRepository;
     private final EventRepository eventRepository;
-    private final UserRepository userRepository;
+    private final CommentMapper commentMapper;
 
     @Override
     @Transactional
-    public CommentDto createComment(NewCommentDto newCommentDto, Long userId, Long eventId) {
-        User user = getUserById(userId);
+    public CommentDto createComment(NewCommentDto newCommentDto, UUID externalId, Long eventId) {
         Event event = getEventById(eventId);
-        Comment comment = CommentMapper.toComment(newCommentDto);
-        comment.setUser(user);
+        Comment comment = commentMapper.toComment(newCommentDto);
+        comment.setAuthorExternalId(externalId);
         comment.setEvent(event);
         comment.setCreatedAt(LocalDateTime.now());
         log.info("Create comment {} successful", comment);
-        return CommentMapper.toCommentDto(commentRepository.save(comment));
+        return commentMapper.toCommentDto(commentRepository.save(comment));
     }
 
     @Override
     @Transactional
-    public CommentDto updateComment(UpdateCommentRequest updateCommentRequest, Long userId, Long commentId) {
-        User user = getUserById(userId);
+    public CommentDto updateComment(UpdateCommentRequest updateCommentRequest, UUID externalId, Long commentId) {
         Comment comment = getCommentById(commentId);
-        if (!comment.getUser().equals(user)) {
+        if (!comment.getAuthorExternalId().equals(externalId)) {
             log.error("User must be owner of comment {}", commentId);
             throw new DataIntegrityViolationException("User is not owner of comment " + commentId);
         }
         comment.setText(updateCommentRequest.getText());
         log.info("Updating comment {} successful", comment.getId());
-        return CommentMapper.toCommentDto(commentRepository.save(comment));
+        return commentMapper.toCommentDto(commentRepository.save(comment));
     }
 
     @Override
     @Transactional
-    public void deleteComment(Long userId, Long commentId) {
+    public void deleteComment(UUID externalId, Long commentId) {
         Comment comment = getCommentById(commentId);
-        User user = getUserById(userId);
-        if (!comment.getUser().equals(user)) {
+        if (!comment.getAuthorExternalId().equals(externalId)) {
             log.error("User must be owner of comment {}", commentId);
             throw new DataIntegrityViolationException("User is not owner of comment " + commentId);
         }
@@ -75,24 +71,16 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<CommentDto> getCommentsByOwner(Long userId, Integer from, Integer size) {
-        User user = getUserById(userId);
+    public List<CommentDto> getCommentsByOwner(UUID externalId, Integer from, Integer size) {
         Pageable pageable = validatePageable(from, size);
-        return commentRepository.getCommentsByUser(user, pageable).stream()
-                .map(CommentMapper::toCommentDto).collect(Collectors.toList());
+        return commentRepository.getCommentsByAuthorExternalId(externalId, pageable).stream()
+                .map(commentMapper::toCommentDto).collect(Collectors.toList());
     }
 
     private Event getEventById(Long eventId) {
         return eventRepository.findById(eventId).orElseThrow(() -> {
             log.error("Event with id {} not found", eventId);
             return new NotFoundException("Event with id " + eventId + " not found");
-        });
-    }
-
-    private User getUserById(Long userId) {
-        return userRepository.findById(userId).orElseThrow(() -> {
-            log.error("User with id {} not found", userId);
-            return new NotFoundException("User with id " + userId + " not found");
         });
     }
 

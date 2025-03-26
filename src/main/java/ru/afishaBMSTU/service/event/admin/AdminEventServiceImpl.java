@@ -37,6 +37,7 @@ public class AdminEventServiceImpl implements AdminEventService {
 
     private final EventRepository eventRepository;
     private final CategoryRepository categoryRepository;
+    private final EventMapper eventMapper;
 
     @Override
     @Transactional
@@ -68,8 +69,7 @@ public class AdminEventServiceImpl implements AdminEventService {
             event.setParticipantLimit(updateEvent.getParticipantLimit());
         }
         if (updateEvent.getLocation() != null) {
-            event.setLat(updateEvent.getLocation().getLat());
-            event.setLon(updateEvent.getLocation().getLon());
+            event.setLocation(updateEvent.getLocation());
         }
         if (updateEvent.getCategory() != null) {
             Category category = getCategoryById(updateEvent.getCategory());
@@ -100,7 +100,7 @@ public class AdminEventServiceImpl implements AdminEventService {
         }
         eventRepository.save(event);
         log.info("Event updated by admin successful");
-        return EventMapper.toEventFullDto(event);
+        return eventMapper.toEventFullDto(event);
     }
 
     @Override
@@ -114,7 +114,7 @@ public class AdminEventServiceImpl implements AdminEventService {
         List<Event> events = eventRepository.findAll(spec, pageable).getContent();
         if (!CollectionUtils.isEmpty(events)) {
             return events.stream()
-                    .map(EventMapper::toEventFullDto)
+                    .map(eventMapper::toEventFullDto)
                     .toList();
         } else {
             return Collections.emptyList();

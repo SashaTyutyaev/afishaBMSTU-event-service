@@ -2,16 +2,16 @@ package ru.afishaBMSTU.service.category;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.transaction.annotation.Transactional;
-import ru.afishaBMSTU.repository.CategoryRepository;
-import ru.afishaBMSTU.model.category.Category;
-import ru.afishaBMSTU.dto.category.CategoryDto;
-import ru.afishaBMSTU.mapper.CategoryMapper;
-import ru.afishaBMSTU.exceptions.IncorrectParameterException;
-import ru.afishaBMSTU.exceptions.NotFoundException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.afishaBMSTU.dto.category.CategoryDto;
+import ru.afishaBMSTU.exceptions.IncorrectParameterException;
+import ru.afishaBMSTU.exceptions.NotFoundException;
+import ru.afishaBMSTU.mapper.CategoryMapper;
+import ru.afishaBMSTU.model.category.Category;
+import ru.afishaBMSTU.repository.CategoryRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final CategoryMapper categoryMapper;
 
     @Override
     @Transactional(readOnly = true)
@@ -29,7 +30,7 @@ public class CategoryServiceImpl implements CategoryService {
         Pageable pageable = validatePageable(from, size);
         List<Category> categories = categoryRepository.findAll(pageable).getContent();
         log.info("Get all categories successful");
-        return categories.stream().map(CategoryMapper::toCategoryDto).collect(Collectors.toList());
+        return categories.stream().map(categoryMapper::toCategoryDto).collect(Collectors.toList());
     }
 
     @Override
@@ -37,7 +38,7 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryDto getCategory(Long id) {
         Category category = getCategoryById(id);
         log.info("Get category {} successful", id);
-        return CategoryMapper.toCategoryDto(category);
+        return categoryMapper.toCategoryDto(category);
     }
 
     private Category getCategoryById(Long id) {

@@ -1,10 +1,10 @@
 databaseChangeLog:
   - changeSet:
-      id: 24.03.2025_9
+      id: 26.03.2025_07
       author: sashatut2004@yandex.ru
       changes:
         - createTable:
-            tableName: compilation_events
+            tableName: views
             columns:
               - column:
                   name: id
@@ -14,16 +14,19 @@ databaseChangeLog:
                     primaryKey: true
                     nullable: false
               - column:
-                  name: compilation_id
-                  type: bigint
+                  name: ip
+                  type: varchar(255)
                   constraints:
                     nullable: false
-                    foreignKeyName: fk_compilation_events_compilations
-                    references: compilations(id)
+              - column:
+                  name: viewed_at
+                  type: timestamp(6)
+                  constraints:
+                    nullable: false
               - column:
                   name: event_id
                   type: bigint
                   constraints:
                     nullable: false
-                    foreignKeyName: fk_compilation_events_events
+                    foreignKeyName: fk_views_events
                     references: events(id)

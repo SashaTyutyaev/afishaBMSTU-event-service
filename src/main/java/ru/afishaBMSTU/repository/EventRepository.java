@@ -8,14 +8,15 @@ import ru.afishaBMSTU.model.event.Event;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecificationExecutor<Event> {
 
     List<Event> findAllByCategoryId(Long categoryId);
 
-    List<Event> findAllByInitiatorId(Long initiatorId, Pageable pageable);
+    List<Event> findAllByInitiatorExternalId(UUID externalId, Pageable pageable);
 
-    Optional<Event> findByInitiatorIdAndId(Long initiatorId, Long id);
+    Optional<Event> findByInitiatorExternalIdAndId(UUID externalId, Long id);
 
 }

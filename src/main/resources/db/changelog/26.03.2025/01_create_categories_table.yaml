@@ -1,10 +1,10 @@
 databaseChangeLog:
   - changeSet:
-      id: 24.03.2025_8
+      id: 26.03.2025_01
       author: sashatut2004@yandex.ru
       changes:
         - createTable:
-            tableName: compilations
+            tableName: categories
             columns:
               - column:
                   name: id
@@ -14,17 +14,7 @@ databaseChangeLog:
                     primaryKey: true
                     nullable: false
               - column:
-                  name: pinned
-                  type: boolean
-                  constraints:
-                    nullable: false
-              - column:
-                  name: title
-                  type: varchar(255)
-                  constraints:
-                    nullable: false
-              - column:
-                  name: type
-                  type: varchar(255)
+                  name: name
+                  type: varchar(50)
                   constraints:
                     nullable: false

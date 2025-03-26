@@ -1,21 +1,14 @@
 package ru.afishaBMSTU.mapper;
 
+import org.mapstruct.Mapper;
 import ru.afishaBMSTU.dto.category.CategoryDto;
 import ru.afishaBMSTU.dto.category.NewCategoryDto;
 import ru.afishaBMSTU.model.category.Category;
 
-public class CategoryMapper {
+@Mapper(componentModel = "spring")
+public interface CategoryMapper {
 
-    public static Category toCategory(NewCategoryDto categoryDto) {
-        return Category.builder()
-                .name(categoryDto.getName())
-                .build();
-    }
+    Category toCategory(NewCategoryDto categoryDto);
 
-    public static CategoryDto toCategoryDto(Category category) {
-        return CategoryDto.builder()
-                .id(category.getId())
-                .name(category.getName())
-                .build();
-    }
+    CategoryDto toCategoryDto(Category category);
 }

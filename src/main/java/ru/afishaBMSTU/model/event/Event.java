@@ -16,9 +16,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.afishaBMSTU.model.category.Category;
-import ru.afishaBMSTU.model.user.User;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 @Builder
@@ -61,15 +61,11 @@ public class Event {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime eventDate;
 
-    @ManyToOne
-    @JoinColumn(name = "initiator_id")
-    private User initiator;
+    @Column(name = "initiator_external_id", unique = true)
+    private UUID initiatorExternalId;
 
-    @Column(name = "lon")
-    private Float lon;
-
-    @Column(name = "lat")
-    private Float lat;
+    @Column(name = "location")
+    private String location;
 
     @Column(name = "paid")
     private Boolean paid;

@@ -1,44 +1,60 @@
 package ru.afishaBMSTU.controller.event;
 
+import io.swagger.v3.oas.annotations.*;
+import io.swagger.v3.oas.annotations.media.*;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.afishaBMSTU.dto.comment.CommentDto;
-import ru.afishaBMSTU.dto.event.EventFilterDto;
-import ru.afishaBMSTU.dto.event.EventFullDto;
+import ru.afishaBMSTU.dto.event.*;
 import ru.afishaBMSTU.service.event.PublicEventService;
-
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/events")
+@Tag(name = "Публичные мероприятия", description = "Публичный API для работы с мероприятиями")
+@SecurityRequirement(name = "bearerAuth")
 public class PublicEventController {
 
     private final PublicEventService publicEventService;
 
+    @Operation(summary = "Получить мероприятия",
+            description = "Получение списка мероприятий с фильтрацией, сортировкой и пагинацией")
     @GetMapping
-    public List<EventFullDto> getEvents(@ModelAttribute EventFilterDto eventFilterDto,
-                                        @RequestParam(required = false) String sort,
-                                        @RequestParam(defaultValue = "0") Integer from,
-                                        @RequestParam(defaultValue = "10") Integer size) {
+    public List<EventFullDto> getEvents(
+            @ModelAttribute EventFilterDto eventFilterDto,
+            @Parameter(description = "Сортировка (asc/desc)", example = "asc")
+            @RequestParam(required = false) String sort,
+            @Parameter(description = "Начальная позиция", example = "0")
+            @RequestParam(defaultValue = "0") Integer from,
+            @Parameter(description = "Количество элементов", example = "10")
+            @RequestParam(defaultValue = "10") Integer size) {
         return publicEventService.getEvents(eventFilterDto, sort, from, size);
     }
 
+    @Operation(summary = "Получить мероприятие по ID",
+            description = "Получение полной информации о мероприятии с учетом IP для статистики")
     @GetMapping("{id}")
-    public EventFullDto getEvent(@PathVariable Long id, HttpServletRequest request) {
+    public EventFullDto getEvent(
+            @Parameter(description = "ID мероприятия", required = true, example = "1")
+            @PathVariable Long id,
+            @Parameter(hidden = true) HttpServletRequest request) {
         return publicEventService.getEvent(id, request.getRemoteAddr());
     }
 
+    @Operation(summary = "Получить комментарии к мероприятию",
+            description = "Получение списка комментариев для конкретного мероприятия")
     @GetMapping("{eventId}/comments")
-    public List<CommentDto> getCommentByEvent(@PathVariable Long eventId,
-                                              @RequestParam(defaultValue = "0") Integer from,
-                                              @RequestParam(defaultValue = "10") Integer size) {
+    public List<CommentDto> getCommentByEvent(
+            @Parameter(description = "ID мероприятия", required = true, example = "1")
+            @PathVariable Long eventId,
+            @Parameter(description = "Начальная позиция", example = "0")
+            @RequestParam(defaultValue = "0") Integer from,
+            @Parameter(description = "Количество элементов", example = "10")
+            @RequestParam(defaultValue = "10") Integer size) {
         return publicEventService.getCommentsByEvent(eventId, from, size);
     }
 }
