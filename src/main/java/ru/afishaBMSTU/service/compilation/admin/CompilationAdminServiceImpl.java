@@ -34,11 +34,13 @@ public class CompilationAdminServiceImpl implements CompilationAdminService {
     private final CompilationsEventRepository compilationsEventRepository;
     private final EventRepository eventRepository;
     private final ViewsRepository viewsRepository;
+    private final EventMapper eventMapper;
+    private final CompilationMapper compilationMapper;
 
     @Override
     @Transactional
     public CompilationDto createCompilation(NewCompilationDto newCompilationDto) {
-        Compilation compilation = CompilationMapper.toCompilation(newCompilationDto);
+        Compilation compilation = compilationMapper.toCompilation(newCompilationDto);
         checkIfCompilationIsPinned(newCompilationDto, compilation);
         compilation.setType(CompilationType.CREATED_BY_ADMIN);
         compilationRepository.save(compilation);
@@ -46,14 +48,8 @@ public class CompilationAdminServiceImpl implements CompilationAdminService {
             List<Event> events = eventRepository.findAllById(newCompilationDto.getEvents());
             addEventToCompilationEventRepository(events, compilation);
         }
-        List<CompilationEvent> compilationEventList = compilationsEventRepository.findAllByCompilationId(compilation.getId());
-        List<EventShortDto> events = new ArrayList<>();
-        if (!compilationEventList.isEmpty()) {
-            for (CompilationEvent compilationEvent : compilationEventList) {
-                events.add(EventMapper.toEventShortDto(compilationEvent.getEvent()));
-            }
-        }
-        CompilationDto compilationDto = CompilationMapper.toCompilationDto(compilation);
+        List<EventShortDto> events = fillEventsForCompilationDto(compilation);
+        CompilationDto compilationDto = compilationMapper.toCompilationDto(compilation);
         compilationDto.setEvents(events);
         log.info("Add compilation: {}", compilationDto);
         return compilationDto;
@@ -68,7 +64,7 @@ public class CompilationAdminServiceImpl implements CompilationAdminService {
         if (newCompilationDto.getPinned() != null) {
             compilation.setPinned(newCompilationDto.getPinned());
         }
-        CompilationDto compilationDto = CompilationMapper.toCompilationDto(compilation);
+        CompilationDto compilationDto = compilationMapper.toCompilationDto(compilation);
         if (newCompilationDto.getEvents() != null) {
             List<CompilationEvent> compilationEvents = compilationsEventRepository.findAllByCompilationId(compId);
             compilationsEventRepository.deleteAll(compilationEvents);
@@ -83,14 +79,7 @@ public class CompilationAdminServiceImpl implements CompilationAdminService {
                 }
             }
 
-            List<CompilationEvent> updatedCompilationEventList = compilationsEventRepository
-                    .findAllByCompilationId(compilation.getId());
-            List<EventShortDto> updatedEvents = new ArrayList<>();
-            if (!updatedCompilationEventList.isEmpty()) {
-                for (CompilationEvent compilationEvent : updatedCompilationEventList) {
-                    updatedEvents.add(EventMapper.toEventShortDto(compilationEvent.getEvent()));
-                }
-            }
+            List<EventShortDto> updatedEvents = fillEventsForCompilationDto(compilation);
             compilationDto.setEvents(updatedEvents);
         }
         log.info("Update compilation: {}", compilationDto);
@@ -134,6 +123,18 @@ public class CompilationAdminServiceImpl implements CompilationAdminService {
 
         addEventToCompilationEventRepository(events, compilation);
         log.info("Successfully created week popular compilation");
+    }
+
+    private List<EventShortDto> fillEventsForCompilationDto(Compilation compilation) {
+        List<CompilationEvent> updatedCompilationEventList = compilationsEventRepository
+                .findAllByCompilationId(compilation.getId());
+        List<EventShortDto> updatedEvents = new ArrayList<>();
+        if (!updatedCompilationEventList.isEmpty()) {
+            for (CompilationEvent compilationEvent : updatedCompilationEventList) {
+                updatedEvents.add(eventMapper.toEventShortDto(compilationEvent.getEvent()));
+            }
+        }
+        return updatedEvents;
     }
 
     private void deletePopularCompilations(CompilationType type) {

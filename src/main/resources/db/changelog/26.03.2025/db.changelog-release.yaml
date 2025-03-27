@@ -1,0 +1,22 @@
+databaseChangeLog:
+  - include:
+      file: "01_create_categories_table.yaml"
+      relativeToChangelogFile: true
+  - include:
+      file: "02_create_events_table.yaml"
+      relativeToChangelogFile: true
+  - include:
+      file: "03_create_comments_table.yaml"
+      relativeToChangelogFile: true
+  - include:
+      file: "04_create_requests_table.yaml"
+      relativeToChangelogFile: true
+  - include:
+      file: "05_create_compilations_table.yaml"
+      relativeToChangelogFile: true
+  - include:
+      file: "06_create_compilation_events_table.yaml"
+      relativeToChangelogFile: true
+  - include:
+      file: "07_create_views_table.yaml"
+      relativeToChangelogFile: true

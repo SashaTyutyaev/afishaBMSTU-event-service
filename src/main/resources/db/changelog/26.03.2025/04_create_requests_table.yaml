@@ -1,0 +1,31 @@
+databaseChangeLog:
+  - changeSet:
+      id: 26.03.2025_04
+      author: sashatut2004@yandex.ru
+      changes:
+        - createTable:
+            tableName: requests
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: event_id
+                  type: BIGINT
+                  constraints:
+                    foreignKeyName: requests_event_id_fk
+                    references: events(id)
+              - column:
+                  name: requester_external_id
+                  type: UUID
+                  constraints:
+                    unique: true
+              - column:
+                  name: status
+                  type: VARCHAR(255)
+              - column:
+                  name: created
+                  type: TIMESTAMP

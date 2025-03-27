@@ -30,6 +30,8 @@ public class CompilationServiceImpl implements CompilationService {
     private final CompilationRepository compilationRepository;
     private final CompilationsEventRepository compilationsEventRepository;
     private final EventRepository eventRepository;
+    private final EventMapper eventMapper;
+    private final CompilationMapper compilationMapper;
 
     @Override
     @Transactional(readOnly = true)
@@ -43,14 +45,7 @@ public class CompilationServiceImpl implements CompilationService {
             compilations = compilationRepository.findAllByPinned(pinned, pageable);
         }
         for (Compilation compilation : compilations) {
-            List<EventShortDto> events = new ArrayList<>();
-            List<CompilationEvent> compilationEvents = compilationsEventRepository.findAllByCompilationId(compilation.getId());
-            for (CompilationEvent compilationEvent : compilationEvents) {
-                EventShortDto event = EventMapper.toEventShortDto(getEventById(compilationEvent.getEvent().getId()));
-                events.add(event);
-            }
-            CompilationDto compilationDto = CompilationMapper.toCompilationDto(compilation);
-            compilationDto.setEvents(events);
+            CompilationDto compilationDto = setEventsToCompilation(compilation);
             result.add(compilationDto);
         }
         log.info("Get compilations successful");
@@ -61,15 +56,22 @@ public class CompilationServiceImpl implements CompilationService {
     @Transactional(readOnly = true)
     public CompilationDto getCompilation(Long id) {
         Compilation compilation = getCompilationById(id);
+
+        CompilationDto compilationDto = setEventsToCompilation(compilation);
+
+        log.info("Get compilation {} successful", compilation.getId());
+        return compilationDto;
+    }
+
+    private CompilationDto setEventsToCompilation(Compilation compilation) {
         List<EventShortDto> events = new ArrayList<>();
         List<CompilationEvent> compilationEvents = compilationsEventRepository.findAllByCompilationId(compilation.getId());
         for (CompilationEvent compilationEvent : compilationEvents) {
-            EventShortDto event = EventMapper.toEventShortDto(getEventById(compilationEvent.getEvent().getId()));
+            EventShortDto event = eventMapper.toEventShortDto(getEventById(compilationEvent.getEvent().getId()));
             events.add(event);
         }
-        CompilationDto compilationDto = CompilationMapper.toCompilationDto(compilation);
+        CompilationDto compilationDto = compilationMapper.toCompilationDto(compilation);
         compilationDto.setEvents(events);
-        log.info("Get compilation {} successful", compilation.getId());
         return compilationDto;
     }
 

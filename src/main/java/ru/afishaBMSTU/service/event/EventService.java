@@ -11,14 +11,21 @@ import ru.afishaBMSTU.dto.request.ParticipationRequestDto;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 public interface EventService {
-    EventFullDto createEvent(NewEventDto newEventDto, Long userId);
-    List<EventShortDto> getAllEventsByUserId(Long userId, Integer from, Integer size);
-    EventFullDto getEventByUserIdAndEventId(Long userId, Long eventId);
-    EventFullDto updateEvent(Long eventId, UpdateEventUserRequest updatedEvent, Long userId);
-    List<ParticipationRequestDto> getRequests(Long userId, Long eventId);
-    EventRequestStatusUpdateResult updateRequestStatus(Long userId, Long eventId,
+    EventFullDto createEvent(NewEventDto newEventDto, UUID externalId);
+
+    List<EventShortDto> getAllEventsByUserId(UUID externalId, Integer from, Integer size);
+
+    EventFullDto getEventByUserIdAndEventId(UUID externalId, Long eventId);
+
+    EventFullDto updateEvent(Long eventId, UpdateEventUserRequest updatedEvent, UUID externalId);
+
+    List<ParticipationRequestDto> getRequests(Long eventId, UUID externalId);
+
+    EventRequestStatusUpdateResult updateRequestStatus(UUID externalId, Long eventId,
                                                        EventRequestStatusUpdateRequest updateRequest);
-    String uploadImage(MultipartFile file, Long userId, Long eventId) throws IOException;
+
+    String uploadImage(MultipartFile file, UUID externalId, Long eventId) throws IOException;
 }

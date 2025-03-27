@@ -8,7 +8,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.afishaBMSTU.model.event.Location;
 import org.hibernate.validator.constraints.Length;
 
 @Data
@@ -37,7 +36,7 @@ public class NewEventDto {
     private String eventDate;
 
     @NotNull
-    private Location location;
+    private String location;
 
     private Boolean paid;
 

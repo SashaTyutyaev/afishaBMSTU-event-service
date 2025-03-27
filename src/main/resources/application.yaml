@@ -1,5 +1,5 @@
 server:
-  port: ${SERVER_PORT:8080}
+  port: ${SERVER_PORT:8082}
 
 spring:
   jpa:
@@ -10,14 +10,24 @@ spring:
         format_sql: true
         show_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
-  sql:
-    init:
-      mode: always
+        default_schema: event_service
   datasource:
     driver-class-name: ${SPRING_DRIVER_CLASS_NAME:org.postgresql.Driver}
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/ewm-main}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/afisha-bmstu}
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
-    password: ${SPRING_DATASOURCE_PASSWORD:root-password-123}
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
+
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    default-schema: event_service
+    liquibase-schema: event_service
+
+security:
+  jwt:
+    secret: a7T8mQ2xL5rH9jK0pB3zW1yNxV6c4oFhJkSiZPlGsYb
+  internal:
+    token: YWhnamZrU0lqZWpmamZJU2pkaWZrbHdxcHE=
 
 integration:
   f5-ai:

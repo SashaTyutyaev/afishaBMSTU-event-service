@@ -1,0 +1,26 @@
+databaseChangeLog:
+  - changeSet:
+      id: 26.03.2025_06
+      author: sashatut2004@yandex.ru
+      changes:
+        - createTable:
+            tableName: compilation_events
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: event_id
+                  type: BIGINT
+                  constraints:
+                    foreignKeyName: compilation_events_event_id_fk
+                    references: events(id)
+              - column:
+                  name: compilation_id
+                  type: BIGINT
+                  constraints:
+                    foreignKeyName: compilation_events_compilation_id_fk
+                    references: compilations(id)

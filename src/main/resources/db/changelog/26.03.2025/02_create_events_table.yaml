@@ -1,0 +1,73 @@
+databaseChangeLog:
+  - changeSet:
+      id: 26.03.2025_02
+      author: sashatut2004@yandex.ru
+      changes:
+        - createTable:
+            tableName: events
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: annotation
+                  type: VARCHAR(2000)
+              - column:
+                  name: category_id
+                  type: BIGINT
+                  constraints:
+                    foreignKeyName: events_category_id_fk
+                    references: categories(id)
+              - column:
+                  name: confirmed_requests
+                  type: INTEGER
+              - column:
+                  name: created_on
+                  type: TIMESTAMP
+              - column:
+                  name: description
+                  type: VARCHAR(7000)
+              - column:
+                  name: image_url
+                  type: VARCHAR(255)
+              - column:
+                  name: image_key
+                  type: VARCHAR(255)
+              - column:
+                  name: description_of_image
+                  type: VARCHAR(7000)
+              - column:
+                  name: event_date
+                  type: TIMESTAMP
+              - column:
+                  name: initiator_external_id
+                  type: UUID
+                  constraints:
+                    unique: true
+              - column:
+                  name: location
+                  type: VARCHAR(255)
+              - column:
+                  name: paid
+                  type: BOOLEAN
+              - column:
+                  name: participant_limit
+                  type: INTEGER
+              - column:
+                  name: published_on
+                  type: TIMESTAMP
+              - column:
+                  name: request_moderation
+                  type: BOOLEAN
+              - column:
+                  name: state
+                  type: VARCHAR(255)
+              - column:
+                  name: title
+                  type: VARCHAR(120)
+              - column:
+                  name: views
+                  type: INTEGER

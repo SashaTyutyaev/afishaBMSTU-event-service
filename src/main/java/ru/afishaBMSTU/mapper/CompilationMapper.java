@@ -1,23 +1,15 @@
 package ru.afishaBMSTU.mapper;
 
 
+import org.mapstruct.Mapper;
 import ru.afishaBMSTU.dto.compilation.CompilationDto;
 import ru.afishaBMSTU.dto.compilation.NewCompilationDto;
 import ru.afishaBMSTU.model.compilation.Compilation;
 
-public class CompilationMapper {
+@Mapper(componentModel = "spring")
+public interface CompilationMapper {
 
-    public static CompilationDto toCompilationDto(Compilation compilation) {
-        return CompilationDto.builder()
-                .id(compilation.getId())
-                .title(compilation.getTitle())
-                .pinned(compilation.getPinned())
-                .build();
-    }
+    CompilationDto toCompilationDto(Compilation compilation);
 
-    public static Compilation toCompilation(NewCompilationDto newCompilationDto) {
-        return Compilation.builder()
-                .title(newCompilationDto.getTitle())
-                .build();
-    }
+    Compilation toCompilation(NewCompilationDto newCompilationDto);
 }
