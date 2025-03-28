@@ -36,6 +36,7 @@ public class SecurityConfig extends BaseSecurityConfig {
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/creator/**").hasAnyRole("ADMIN", "CREATOR")
                         .requestMatchers("/api/**").hasAnyRole("ADMIN", "CREATOR", "USER")
+                        .requestMatchers("/actuator/**").permitAll()
                 );
     }
 }

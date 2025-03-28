@@ -23,4 +23,9 @@ public class JwtAuthFilter extends BaseAuthTokenFilter<JwtTokenDataDto> {
         return jwtService.extractUserInfo(token);
     }
 
+    @Override
+    protected boolean shouldSkipFilterAddons(String requestURI) {
+        return requestURI.contains("/actuator");
+    }
+
 }
