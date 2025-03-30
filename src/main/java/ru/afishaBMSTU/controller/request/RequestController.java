@@ -17,7 +17,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/users/requests")
+@RequestMapping("/api/requests")
 @Tag(name = "Заявки пользователей", description = "API для работы с заявками на участие")
 @SecurityRequirement(name = "bearerAuth")
 public class RequestController {
