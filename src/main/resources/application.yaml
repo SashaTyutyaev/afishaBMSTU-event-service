@@ -1,29 +1,6 @@
-server:
-  port: ${SERVER_PORT:8082}
-
 spring:
-  application:
-    name: AFI-BMSTU-event-service
-  jpa:
-    hibernate:
-      ddl-auto: update
-    properties:
-      hibernate:
-        format_sql: true
-        show_sql: true
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        default_schema: event_service
-  datasource:
-    driver-class-name: ${SPRING_DRIVER_CLASS_NAME:org.postgresql.Driver}
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/afisha-bmstu}
-    username: ${SPRING_DATASOURCE_USERNAME:postgres}
-    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
-
-  liquibase:
-    enabled: true
-    change-log: classpath:db/changelog/db.changelog-master.yaml
-    default-schema: event_service
-    liquibase-schema: event_service
+  profiles:
+    active: local
 
 security:
   jwt:
@@ -33,7 +10,7 @@ security:
 
 integration:
   f5-ai:
-    key: eyJ0eXAiOiJKV1QiLCJqdGkiOiI2N2Q2Mjc3M2EyOTg5NjEwNDAwNmQ4YWQiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiI2N2Q2Mjc3M2EyOTg5NjEwNDAwNmQ4YWQiLCJhY2NvdW50X2lkIjozOTQxLCJpc3MiOiJodHRwczovL2FwcC5mNWFpLnJ1IiwiYXVkIjoiaHR0cHM6Ly9hcGkuZjVhaS5ydSIsImlhdCI6MTc0MjA4ODA1MSwibmJmIjoxNzQyMDg4MDUxLCJ2ZW5kb3IiOiJvcGVuYWkiLCJzY29wZXMiOlsiY2hhdHMiXX0.nRnabqvqEaIIJa7gGah4XE-AjQQ5i67S7c2NluZwArg
+    key: ZXlKMGVYQWlPaUpLVjFRaUxDSnFkR2tpT2lJMk4yUTJNamMzTTJFeU9UZzVOakV3TkRBd05tUTRZV1FpTENKaGJHY2lPaUpJVXpJMU5pSjkuZXlKcWRHa2lPaUkyTjJRMk1qYzNNMkV5T1RnNU5qRXdOREF3Tm1RNFlXUWlMQ0poWTJOdmRXNTBYMmxrSWpvek9UUXhMQ0pwYzNNaU9pSm9kSFJ3Y3pvdkwyRndjQzVtTldGcExuSjFJaXdpWVhWa0lqb2lhSFIwY0hNNkx5OWhjR2t1WmpWaGFTNXlkU0lzSW1saGRDSTZNVGMwTWpBNE9EQTFNU3dpYm1KbUlqb3hOelF5TURnNE1EVXhMQ0oyWlc1a2IzSWlPaUp2Y0dWdVlXa2lMQ0p6WTI5d1pYTWlPbHNpWTJoaGRITWlYWDAublJuYWJxdnFFYUlJSmE3Z0dhaDRYRS1BalFRNWk2N1M3YzJObHVad0FyZwo=
     url: https://api.f5ai.ru/v1/chat/completions
   bmstu:
     host: https://bmstu.ru
@@ -45,18 +22,9 @@ integration:
       limit: limit=
       offset: offset=
   s3:
-    key-id: YCAJEHHi2qLpJtBi2OMqESqR6
-    secret-key: YCPZPcwl_BwVBwZzQGrTeqW50xnn0IwHhO_4TJQQ
+    key-id: WUNBSkVISGkycUxwSnRCaTJPTXFFU3FSNg==
+    secret-key: WUNQWlBjd2xfQndWQndaelFHclRlcVc1MHhubjBJd0hoT180VEpRUQ==
     region: ru-central1
     s3-endpoint: https://storage.yandexcloud.net
     bucket-name: afishabmstu
     package-name: eventPictures/
-
-eureka:
-  client:
-    healthcheck:
-      enabled: true
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
-  instance:
-    prefer-ip-address: true

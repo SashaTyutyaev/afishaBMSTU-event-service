@@ -11,6 +11,7 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 
 import java.net.URI;
+import java.util.Base64;
 
 @Configuration
 public class S3Config {
@@ -29,7 +30,9 @@ public class S3Config {
 
     @Bean
     public S3Client s3Client() {
-        AwsCredentials credentials = AwsBasicCredentials.create(keyId, secretKey);
+        String decodedKeyId = new String(Base64.getDecoder().decode(keyId));
+        String decodedSecretKey = new String(Base64.getDecoder().decode(secretKey));
+        AwsCredentials credentials = AwsBasicCredentials.create(decodedKeyId, decodedSecretKey);
 
         return S3Client.builder()
                 .httpClient(ApacheHttpClient.create())
