@@ -21,8 +21,12 @@ public class F5AIClient {
     @Value("${integration.f5-ai.url}")
     private String f5AIUrl;
 
+    @Value("${integration.f5-ai.key}")
+    private String f5AIKey;
+
     public String getImageDescription(MultipartFile multipartFile) throws IOException {
 
+        String decodedF5AIKey = new String(Base64.getDecoder().decode(f5AIKey));
         String base64Image = Base64.getEncoder().encodeToString(multipartFile.getBytes());
         String imageUrl = "data:image/jpeg;base64," + base64Image;
 
@@ -30,6 +34,7 @@ public class F5AIClient {
 
         return f5AIWebClient.post()
                 .uri(f5AIUrl)
+                .header("X-Auth-Token", decodedF5AIKey.replace("\n",""))
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(requestBody)
                 .retrieve()

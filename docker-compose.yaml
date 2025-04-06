@@ -1,0 +1,123 @@
+version: '3.8'
+
+services:
+  eureka-server:
+    image: mamaiwyd/afibmstu-eureka-server:latest
+    ports:
+      - "8761:8761"
+    container_name: eureka-server
+    environment:
+      - EUREKA_SERVER_PORT=8761
+    networks:
+      - afisha_network
+
+  auth-service:
+    image: mamaiwyd/afibmstu-auth-service:latest
+    container_name: auth-service
+    depends_on:
+      - eureka-server
+      - auth-db
+    environment:
+      - SERVER_PORT=8081
+      - EUREKA_SERVER=http://eureka-server:8761/eureka
+      - SPRING_DRIVER_CLASS_NAME=org.postgresql.Driver
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://auth-db:5432/auth-service
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+    networks:
+      - afisha_network
+
+  user-service:
+    image: mamaiwyd/afibmstu-user-service:latest
+    container_name: user-service
+    depends_on:
+      - eureka-server
+      - user-db
+    environment:
+      - SERVER_PORT=8083
+      - EUREKA_SERVER=http://eureka-server:8761/eureka
+      - SPRING_DRIVER_CLASS_NAME=org.postgresql.Driver
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://user-db:5432/user-service
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+    networks:
+      - afisha_network
+
+  event-service:
+    image: mamaiwyd/afibmstu-event-service:latest
+    container_name: event-service
+    depends_on:
+      - eureka-server
+      - event-db
+    environment:
+      - SERVER_PORT=8082
+      - EUREKA_SERVER=http://eureka-server:8761/eureka
+      - SPRING_DRIVER_CLASS_NAME=org.postgresql.Driver
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://event-db:5432/event-service
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+    networks:
+      - afisha_network
+
+  api-gateway:
+    image: mamaiwyd/afibmstu-api-gateway:latest
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - eureka-server
+      - auth-service
+      - user-service
+      - event-service
+    environment:
+      - EUREKA_SERVER=http://eureka-server:8761/eureka
+    networks:
+      - afisha_network
+
+  auth-db:
+    image: postgres:latest
+    container_name: auth-db
+    environment:
+      - POSTGRES_DB=auth-service
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - auth-db-data:/var/lib/postgresql/data
+    networks:
+      - afisha_network
+
+  user-db:
+    image: postgres:latest
+    container_name: user-db
+    environment:
+      - POSTGRES_DB=user-service
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - user-db-data:/var/lib/postgresql/data
+    networks:
+      - afisha_network
+
+  event-db:
+    image: postgres:latest
+    container_name: event-db
+    environment:
+      - POSTGRES_DB=event-service
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - event-db-data:/var/lib/postgresql/data
+    networks:
+      - afisha_network
+
+networks:
+  afisha_network:
+    driver: bridge
+
+volumes:
+  auth-db-data:
+  user-db-data:
+  event-db-data:
