@@ -83,9 +83,10 @@ public class EventServiceImpl implements EventService {
         }
         Event event = eventMapper.toEvent(newEventDto);
         event.setInitiatorExternalId(externalId);
-        Category category = getCategoryById(newEventDto.getCategory());
-        event.setCategory(category);
-        event.setState(State.PENDING);
+        if (newEventDto.getCategory() != null) {
+            event.setCategory(getCategoryById(newEventDto.getCategory()));
+        }
+        event.setState(State.PUBLISHED);
         event.setCreatedOn(LocalDateTime.now());
         event.setConfirmedRequests(0);
         event.setViews(0);
