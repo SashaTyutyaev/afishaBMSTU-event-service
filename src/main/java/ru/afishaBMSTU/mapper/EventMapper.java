@@ -29,7 +29,8 @@ public interface EventMapper {
     EventFullDto toEventFullDto(Event event);
 
     @Mapping(target = "eventDate", expression = "java(LocalDateTime.parse(newEventDto.getEventDate(), FORMATTER))")
-    @Mapping(target = "category", source = "category") // Указываем маппинг
+    @Mapping(target = "category", source = "category")
+        // Указываем маппинг
     Event toEvent(NewEventDto newEventDto);
 
     default Category map(Long value) {

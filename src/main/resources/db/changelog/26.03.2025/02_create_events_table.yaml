@@ -45,8 +45,6 @@ databaseChangeLog:
               - column:
                   name: initiator_external_id
                   type: UUID
-                  constraints:
-                    unique: true
               - column:
                   name: location
                   type: VARCHAR(255)

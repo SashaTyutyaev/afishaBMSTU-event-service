@@ -22,7 +22,6 @@ public class NewEventDto {
     @Length(min = 20, max = 2000)
     private String annotation;
 
-    @NotNull
     private Integer category;
 
     @NotNull

@@ -24,8 +24,6 @@ databaseChangeLog:
               - column:
                   name: author_external_id
                   type: UUID
-                  constraints:
-                    unique: true
               - column:
                   name: created_at
                   type: TIMESTAMP
