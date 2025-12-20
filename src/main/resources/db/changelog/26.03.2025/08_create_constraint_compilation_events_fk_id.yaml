@@ -1,0 +1,16 @@
+databaseChangeLog:
+  - changeSet:
+      id: 26.03.2025_07
+      author: sashatut2004@yandex.ru
+      changes:
+        - dropForeignKeyConstraint:
+            baseTableName: compilation_events
+            constraintName: compilation_events_event_id_fk
+
+        - addForeignKeyConstraint:
+            baseTableName: compilation_events
+            baseColumnNames: event_id
+            referencedTableName: events
+            referencedColumnNames: id
+            constraintName: compilation_events_event_id_fk
+            onDelete: CASCADE

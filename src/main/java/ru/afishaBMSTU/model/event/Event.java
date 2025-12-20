@@ -37,6 +37,7 @@ public class Event {
 
     @ManyToOne
     @JoinColumn(name = "category_id")
+
     private Category category;
 
     @Column(name = "confirmed_requests")

@@ -108,7 +108,7 @@ public class EventSpecification {
             if (onlyAvailable == null || !onlyAvailable) {
                 return null;
             }
-            return cb.greaterThan(root.get("availableSeats"), 0);
+            return cb.greaterThan(root.get("participantLimit"), 0);
         };
     }
 

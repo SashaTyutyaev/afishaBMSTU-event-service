@@ -21,11 +21,14 @@ databaseChangeLog:
               - column:
                   name: requester_external_id
                   type: UUID
-                  constraints:
-                    unique: true
               - column:
                   name: status
                   type: VARCHAR(255)
               - column:
                   name: created
                   type: TIMESTAMP
+
+        - addUniqueConstraint:
+            tableName: requests
+            columnNames: event_id, requester_external_id
+            constraintName: uq_requests_event_requester

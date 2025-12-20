@@ -20,3 +20,6 @@ databaseChangeLog:
   - include:
       file: "07_create_views_table.yaml"
       relativeToChangelogFile: true
+  - include:
+      file: "08_create_constraint_compilation_events_fk_id.yaml"
+      relativeToChangelogFile: true
