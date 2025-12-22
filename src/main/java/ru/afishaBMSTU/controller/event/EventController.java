@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -87,6 +88,14 @@ public class EventController {
             @Parameter(description = "ID мероприятия", example = "1") @PathVariable Long eventId,
             @RequestBody @Valid UpdateEventUserRequest updateEventUserRequest) {
         return eventService.updateEvent(eventId, updateEventUserRequest, jwtTokenDataDto.getExternalId());
+    }
+
+    @Operation(summary = "Удалить мероприятие", description = "Удалить мероприятие")
+    @DeleteMapping("{eventId}")
+    public void deleteEvent(
+            @Parameter(hidden = true) @AuthenticationPrincipal JwtTokenDataDto jwtTokenDataDto,
+            @Parameter(description = "ID мероприятия", example = "1") @PathVariable Long eventId) {
+        eventService.deleteEvent(eventId, jwtTokenDataDto.getExternalId());
     }
 
     @Operation(summary = "Получить заявки", description = "Заявки на участие в конкретном мероприятии")

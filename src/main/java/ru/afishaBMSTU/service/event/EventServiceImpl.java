@@ -231,6 +231,17 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
+    public void deleteEvent(Long eventId, UUID externalId) {
+        Event event = getEventById(eventId);
+        if (event.getInitiatorExternalId().equals(externalId)) {
+            eventRepository.delete(event);
+        } else {
+            throw new IncorrectParameterException("Event " + eventId + " is not owner of event " + externalId);
+        }
+    }
+
+    @Override
+    @Transactional
     public String uploadImage(MultipartFile file, UUID externalId, Long eventId) throws IOException {
         Event event = getEventByInitiatorAndEventId(externalId, eventId);
 

@@ -28,4 +28,6 @@ public interface EventService {
                                                        EventRequestStatusUpdateRequest updateRequest);
 
     String uploadImage(MultipartFile file, UUID externalId, Long eventId) throws IOException;
+
+    void deleteEvent(Long eventId, UUID externalId);
 }

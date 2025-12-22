@@ -142,7 +142,7 @@
 		<dependency>
 			<groupId>com.github.SashaTyutyaev</groupId>
 			<artifactId>afishaBMSTU-auth-lib</artifactId>
-			<version>v1.0.16</version>
+			<version>v1.0.17</version>
 		</dependency>
 	</dependencies>
 
